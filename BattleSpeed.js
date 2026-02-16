@@ -1,3 +1,11 @@
+//=============================================================================
+// BattleSpeed.js
+//=============================================================================
+/*:
+* @target MZ
+* @plugindesc Speed up battle animations x4
+* @author Rachnera
+*/
 
 const alias_Rachnera_BattleSpeed_Scene_Battle_update = Scene_Battle.prototype.update;
 Scene_Battle.prototype.update = function () {
