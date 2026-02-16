@@ -7,7 +7,7 @@
  * @author Rachnera
  *
  * @param Common Event Id
- * @desc Id of the common Event to be played on party loses
+ * @desc Id of the common Event to be played on party loss
  * @default 0
  *
  * @help
