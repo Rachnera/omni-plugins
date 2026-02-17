@@ -3,7 +3,7 @@
 //=============================================================================
 /*:
  * @target MZ
- * @plugindesc For minor bugs that aren't worth getting their own plugins each
+ * @plugindesc For minor bugs that don't deserve their own plugin
  * @author Rachnera
  * @help
  * =====
