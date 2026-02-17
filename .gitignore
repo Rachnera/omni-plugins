@@ -1,1 +1,3 @@
-.vscode
+*.js
+!BattleSpeed.js
+!CommonEvenOnDefeat.js
