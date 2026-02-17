@@ -1,8 +1,8 @@
 ## Dev
 
-To be checkouted directly in the js/plugins/ folder of the project. Plugins then need to be manually enabled in RMMZ.
+To be checkouted directly in the `js/plugins/` folder of the project. Plugins then need to be manually enabled in RMMZ.
 
-Non-custom plugins are not tracked there. New custom plugins need to be added to the .gitignore before they can be tracked.
+Non-custom plugins are not tracked there. New custom plugins need to be added to the `.gitignore` before they can be tracked.
 
 ## Deployment
 
