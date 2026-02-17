@@ -9,7 +9,7 @@
  * =====
  * Bug #1: Battlers sometimes becoming transparent
  * Cause: LvMZ_PartySizeControl plugin command did not always cast number-like
- * string inputs to numbers. And in JS, 2+2=4 but 2+"2"=22.
+ * string inputs to numbers. And in JS, 2+2=4 but 2+"2"="22".
  * Retroactive fix: Yes
  * =====
  */
