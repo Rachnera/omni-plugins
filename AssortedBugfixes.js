@@ -7,9 +7,11 @@
  * @author Rachnera
  * @help
  * =====
- * Bug #1: Battlers sometimes becoming transparent
+ * Bug #1: Battlers sometimes becoming invisible
  * Cause: LvMZ_PartySizeControl plugin command did not always cast number-like
- * string inputs to numbers. And in JS, 2+2=4 but 2+"2"="22".
+ * string inputs to numbers. A not-a-number that was eventually used to compute
+ * the position of battlers. And since, in JS, 2+2=4 but 2+"2"="22", the value
+ * was way off. Like, completely offscreen off.
  * Retroactive fix: Yes
  * =====
  */
