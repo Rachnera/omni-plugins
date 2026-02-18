@@ -14,6 +14,11 @@
  * was way off. Like, completely offscreen off.
  * Retroactive fix: Yes
  * =====
+ * Bug #2: Fix text being cut in the topmost textbox of the combat screen
+ * Cause: Unknown. I just did a quick and dirty fix by adding a few pixels
+ * of height so it looks better.
+ * Retroactive fix: Yes
+ * =====
  */
 (() => {
   // Bug #1
@@ -21,5 +26,11 @@
   const alias_Game_Party_maxBattleMembers = Game_Party.prototype.maxBattleMembers;
   Game_Party.prototype.maxBattleMembers = function () {
     return Number(alias_Game_Party_maxBattleMembers.call(this));
+  };
+
+  // Bug #2
+  const alias_Scene_Battle_helpAreaHeight = Scene_Battle.prototype.helpAreaHeight;
+  Scene_Battle.prototype.helpAreaHeight = function () {
+    return alias_Scene_Battle_helpAreaHeight.call(this) + 12;
   };
 })();
