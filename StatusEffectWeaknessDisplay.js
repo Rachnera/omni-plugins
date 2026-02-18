@@ -6,7 +6,13 @@
  * @plugindesc Display enemies' weakness/immunity to various status effects.
  * @author Rachnera
  *
+ * @param Ids of states to track
+ * @type select[]
+ *
  * @help
+ * States to be tracked must be explicitly specified with the appropriate
+ * option, so to not end with oddities like "Boss is weak to Regen".
+ *
  * Enemies are identified by names to support tricks like several different
  * enemies sharing a name and a sprite.
  *
@@ -20,6 +26,11 @@
  */
 
 (() => {
+  const params = PluginManager.parameters("StatusEffectWeaknessDisplay");
+  const statesToTrack = params["Ids of states to track"]
+    ? JSON.parse(params["Ids of states to track"]).map((value) => Number(value))
+    : [];
+
   let enemiesBenchmark = {};
 
   Game_Enemy.prototype.SEWDKey = function () {
@@ -39,7 +50,7 @@
 
     const states = effect.dataId !== 0 ? [effect.dataId] : this.subject().attackStates();
     for (const stateId of states) {
-      if (stateId === target.deathStateId()) {
+      if (!statesToTrack.includes(stateId)) {
         continue;
       }
       const key = target.SEWDKey();
@@ -86,6 +97,11 @@
 
     if (enemiesBenchmark[battler.SEWDKey()]) {
       for (let stateId of enemiesBenchmark[battler.SEWDKey()]) {
+        // Ignore eventual now obsolete data
+        if (!statesToTrack.includes(stateId)) {
+          continue;
+        }
+
         const stateName = $dataStates[stateId].name;
         const stateRate = battler.stateRate(stateId);
 
@@ -108,7 +124,12 @@
       return this.drawText(text, wx, wy, this.contents.width, "center");
     }
 
-    this.drawText(weaknesses.length > 0 ? `Weak to ${weaknesses.join(", ")}` : "No known weakness", 0, 0, this.contents.width);
+    this.drawText(
+      weaknesses.length > 0 ? `Weak to ${weaknesses.join(", ")}` : "No known weakness",
+      0,
+      0,
+      this.contents.width,
+    );
     if (immunities.length > 0) {
       this.drawText(`Immune to ${immunities.join(", ")}`, 0, this.lineHeight(), this.contents.width);
     }
