@@ -20,7 +20,7 @@
  */
 
 (() => {
-  const enemiesBenchmark = {};
+  let enemiesBenchmark = {};
 
   Game_Enemy.prototype.SEWDKey = function () {
     return this.originalName();
@@ -44,10 +44,28 @@
       }
       const key = target.SEWDKey();
       if (!enemiesBenchmark[key]) {
-        enemiesBenchmark[key] = new Set();
+        enemiesBenchmark[key] = [];
       }
-      enemiesBenchmark[key].add(stateId);
+      // Not using a Set cause I'm not sure how well the DataManager supports them
+      if (!enemiesBenchmark[key].includes(stateId)) {
+        enemiesBenchmark[key].push(stateId);
+      }
     }
+  };
+
+  /* Persist discovered weaknesses on save/load */
+
+  const alias_DataManager_makeSaveContents = DataManager.makeSaveContents;
+  DataManager.makeSaveContents = function () {
+    const contents = alias_DataManager_makeSaveContents.call(this);
+    contents.enemiesBenchmark = enemiesBenchmark;
+    return contents;
+  };
+
+  const alias_DataManager_extractSaveContents = DataManager.extractSaveContents;
+  DataManager.extractSaveContents = function (contents) {
+    alias_DataManager_extractSaveContents.call(this, contents);
+    enemiesBenchmark = contents.enemiesBenchmark || {};
   };
 
   /* Displaying the info in combat */
