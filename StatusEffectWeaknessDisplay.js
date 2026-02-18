@@ -23,7 +23,15 @@
  * and the best timing but good enough for a prototype. That window previously
  * displayed the name of the enemy, an information already available under its
  * sprite.
+ *
+ * You can force the reveal of an enemy resistance to a specific status effect,
+ * even outside of combat, by calling the code snippet:
+ * SEWD.revealEnemyWeakness(enemyName, stateId)
+ * Example:
+ * SEWD.revealEnemyWeakness("Armored Zombie", 12)
  */
+
+const SEWD = {};
 
 (() => {
   const params = PluginManager.parameters("StatusEffectWeaknessDisplay");
@@ -32,10 +40,6 @@
     : [];
 
   let enemiesBenchmark = {};
-
-  Game_Enemy.prototype.SEWDKey = function () {
-    return this.originalName();
-  };
 
   /* Registering when a status effect is applied to an enemy (even if it fails to stick) */
 
@@ -53,14 +57,7 @@
       if (!statesToTrack.includes(stateId)) {
         continue;
       }
-      const key = target.SEWDKey();
-      if (!enemiesBenchmark[key]) {
-        enemiesBenchmark[key] = [];
-      }
-      // Not using a Set cause I'm not sure how well the DataManager supports them
-      if (!enemiesBenchmark[key].includes(stateId)) {
-        enemiesBenchmark[key].push(stateId);
-      }
+      registerStateForEnemy(target.originalName(), stateId);
     }
   };
 
@@ -95,8 +92,8 @@
     const weaknesses = [];
     const immunities = [];
 
-    if (enemiesBenchmark[battler.SEWDKey()]) {
-      for (let stateId of enemiesBenchmark[battler.SEWDKey()]) {
+    if (enemiesBenchmark[battler.originalName()]) {
+      for (let stateId of enemiesBenchmark[battler.originalName()]) {
         // Ignore eventual now obsolete data
         if (!statesToTrack.includes(stateId)) {
           continue;
@@ -133,5 +130,20 @@
     if (immunities.length > 0) {
       this.drawText(`Immune to ${immunities.join(", ")}`, 0, this.lineHeight(), this.contents.width);
     }
+  };
+
+  /* Utility function */
+  const registerStateForEnemy = (key, stateId) => {
+    if (!enemiesBenchmark[key]) {
+      enemiesBenchmark[key] = [];
+    }
+    // Not using a Set cause I'm not sure how well the DataManager supports them
+    if (!enemiesBenchmark[key].includes(stateId)) {
+      enemiesBenchmark[key].push(stateId);
+    }
+  };
+
+  SEWD.revealEnemyWeakness = (enemyName, stateId) => {
+    return registerStateForEnemy(enemyName, stateId);
   };
 })();
