@@ -17,3 +17,7 @@ Additional extensions to be excluded on deployment:
 ```
 xcf
 ```
+
+## Credits
+
+[Ocean's Dream](https://forums.rpgmakerweb.com/threads/oceans-nostalgia-resources.134943/) for the ??? icon.
