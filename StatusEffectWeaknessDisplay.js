@@ -132,9 +132,12 @@ const SEWD = {};
   Sprite_StateResistanceIcon.prototype.update = function () {
     Sprite.prototype.update.call(this);
 
-    if (!this._enemy || !this._enemy.isAlive()) {
+    if (!this._enemy?.isSelected()) {
+      this.hide();
       return;
     }
+
+    this.show();
 
     const stateId = config.states[this._index].id;
     let resistance = 0; // 0 = unknown, 1 = weak, 2 = immune
