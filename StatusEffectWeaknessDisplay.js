@@ -120,7 +120,7 @@ const SEWD = {};
     this.anchor.x = 0.5;
     this.anchor.y = 0.5;
 
-    this.x = -(config.icon.size * statesToTrack.length) / 2 + (index + 1) * config.icon.size;
+    this.x = -(config.icon.size * statesToTrack.length) / 2 + index * config.icon.size + config.icon.size / 2;
 
     this.bitmap = ImageManager.loadBitmap(config.icon.file.folder, config.icon.file.name);
   };
