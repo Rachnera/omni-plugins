@@ -6,12 +6,10 @@
  * @plugindesc Display enemies' weakness/immunity to various status effects.
  * @author Rachnera
  *
- * @param Ids of states to track
- * @type select[]
- *
  * @help
- * States to be tracked must be explicitly specified with the appropriate
- * option, so to not end with oddities like "Boss is weak to Regen".
+ * Tracked states (namely Opening, Wound, Damaged, Afflicted and Pushed)
+ * are hardcoded in the script for now as there didn't seem to be much
+ * value in supporting the additional logistics for them to be customizable.
  *
  * Enemies are identified by names to support tricks like several different
  * enemies sharing a name and a sprite.
@@ -26,18 +24,15 @@
  *
  * You can force the reveal of an enemy resistance to a specific status effect,
  * even outside of combat, by calling the code snippet:
- * SEWD.revealEnemyWeakness(enemyName, stateId)
- * Example:
- * SEWD.revealEnemyWeakness("Armored Zombie", 12)
+ * SEWD.revealEnemyResistance(enemyName, stateId)
+ * For example, SEWD.revealEnemyResistance("Armored Zombie", 12) will reveal that
+ * the Armored Zombie enemy has a weakness to Opening.
  */
 
 const SEWD = {};
 
 (() => {
-  const params = PluginManager.parameters("StatusEffectWeaknessDisplay");
-  const statesToTrack = params["Ids of states to track"]
-    ? JSON.parse(params["Ids of states to track"]).map((value) => Number(value))
-    : [];
+  const statesToTrack = [12, 13, 14, 15, 22];
 
   let enemiesBenchmark = {};
 
@@ -143,7 +138,7 @@ const SEWD = {};
     }
   };
 
-  SEWD.revealEnemyWeakness = (enemyName, stateId) => {
+  SEWD.revealEnemyResistance = (enemyName, stateId) => {
     return registerStateForEnemy(enemyName, stateId);
   };
 })();
