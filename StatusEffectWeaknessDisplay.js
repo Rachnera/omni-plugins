@@ -7,20 +7,15 @@
  * @author Rachnera
  *
  * @help
+ * This plugin requires the SEWD_icons.png file to be in the js/plugins/
+ * folder to work.
+ *
  * Tracked states (namely Opening, Wound, Damaged, Afflicted and Pushed)
  * are hardcoded in the script for now as there didn't seem to be much
  * value in supporting the additional logistics for them to be customizable.
  *
  * Enemies are identified by names to support tricks like several different
  * enemies sharing a name and a sprite.
- *
- * Only status with a 0% or 100% resistance are displayed.
- *
- * For now, the informations are displayed when targeting the enemy in raw text
- * inside the help window at the top of the combat screen. Not the best place
- * and the best timing but good enough for a prototype. That window previously
- * displayed the name of the enemy, an information already available under its
- * sprite.
  *
  * You can force the reveal of an enemy resistance to a specific status effect,
  * even outside of combat, by calling the code snippet:
@@ -32,7 +27,23 @@
 const SEWD = {};
 
 (() => {
-  const statesToTrack = [12, 13, 14, 15, 22];
+  const config = {
+    icon: {
+      file: {
+        name: "SEWD_icons",
+        folder: "js/plugins/",
+      },
+      size: 32,
+    },
+    states: [
+      { id: 12, iconLine: 1 }, // Opening
+      { id: 13, iconLine: 2 }, // Wound
+      { id: 14, iconLine: 3 }, // Damaged
+      { id: 15, iconLine: 4 }, // Afflicted
+    ],
+  };
+
+  const statesToTrack = config.states.map(({ id }) => id);
 
   let enemiesBenchmark = {};
 
@@ -72,59 +83,78 @@ const SEWD = {};
   };
 
   /* Displaying the info in combat */
+  const alias_Sprite_Enemy_initMembers = Sprite_Enemy.prototype.initMembers;
+  Sprite_Enemy.prototype.initMembers = function () {
+    alias_Sprite_Enemy_initMembers.call(this);
 
-  const alias_Window_Help_drawBattler = Window_Help.prototype.drawBattler;
-  Window_Help.prototype.drawBattler = function (battler) {
-    // Reset to default just in case
-    this.changeTextColor(ColorManager.textColor(0));
+    this._stateResistanceIcons = [];
+    for (let i = 0; i < statesToTrack.length; i++) {
+      const icon = new Sprite_StateResistanceIcon(i);
+      this._stateResistanceIcons.push(icon);
+      this.addChild(icon);
+    }
+  };
 
-    const isEnemy = battler instanceof Game_Enemy;
+  const alias_Sprite_Enemy_setBattler = Sprite_Enemy.prototype.setBattler;
+  Sprite_Enemy.prototype.setBattler = function (battler) {
+    alias_Sprite_Enemy_setBattler.call(this, battler);
+    this._stateResistanceIcons.forEach((icon) => {
+      icon.setup(battler);
+    });
+  };
 
-    if (!isEnemy) {
-      return alias_Window_Help_drawBattler.call(this, battler);
+  function Sprite_StateResistanceIcon() {
+    this.initialize(...arguments);
+  }
+
+  Sprite_StateResistanceIcon.prototype = Object.create(Sprite.prototype);
+  Sprite_StateResistanceIcon.prototype.constructor = Sprite_StateResistanceIcon;
+
+  Sprite_StateResistanceIcon.prototype.initialize = function (index) {
+    Sprite.prototype.initialize.call(this);
+
+    this._enemy = null;
+    this._index = index;
+    this._resistance = null;
+
+    this.anchor.x = 0.5;
+    this.anchor.y = 0.5;
+
+    this.x = -(config.icon.size * statesToTrack.length) / 2 + (index + 1) * config.icon.size;
+
+    this.bitmap = ImageManager.loadBitmap(config.icon.file.folder, config.icon.file.name);
+  };
+
+  Sprite_StateResistanceIcon.prototype.setup = function (enemy) {
+    this._enemy = enemy;
+  };
+
+  Sprite_StateResistanceIcon.prototype.update = function () {
+    Sprite.prototype.update.call(this);
+
+    if (!this._enemy || !this._enemy.isAlive()) {
+      return;
     }
 
-    const weaknesses = [];
-    const immunities = [];
+    const stateId = config.states[this._index].id;
+    let resistance = 0; // 0 = unknown, 1 = weak, 2 = immune
 
-    if (enemiesBenchmark[battler.originalName()]) {
-      for (let stateId of enemiesBenchmark[battler.originalName()]) {
-        // Ignore eventual now obsolete data
-        if (!statesToTrack.includes(stateId)) {
-          continue;
-        }
-
-        const stateName = $dataStates[stateId].name;
-        const stateRate = battler.stateRate(stateId);
-
-        if (stateRate === 1) {
-          weaknesses.push(stateName);
-        }
-
-        if (stateRate === 0) {
-          immunities.push(stateName);
-        }
-      }
+    if (enemiesBenchmark[this._enemy.originalName()]?.includes(stateId)) {
+      resistance = this._enemy.stateRate(stateId) === 0 ? 2 : 1;
     }
 
-    if (weaknesses.length === 0 && immunities.length === 0) {
-      const text = "No known information about this enemy";
-
-      const wx = 0;
-      const wy = (this.contents.height - this.lineHeight()) / 2;
-      this.changeTextColor(ColorManager.textColor(7)); // Greyish text
-      return this.drawText(text, wx, wy, this.contents.width, "center");
+    if (resistance === this._resistance) {
+      return;
     }
 
-    this.drawText(
-      weaknesses.length > 0 ? `Weak to ${weaknesses.join(", ")}` : "No known weakness",
-      0,
-      0,
-      this.contents.width,
+    this._resistance = resistance;
+
+    this.setFrame(
+      config.icon.size * resistance,
+      config.icon.size * config.states[this._index].iconLine,
+      config.icon.size,
+      config.icon.size,
     );
-    if (immunities.length > 0) {
-      this.drawText(`Immune to ${immunities.join(", ")}`, 0, this.lineHeight(), this.contents.width);
-    }
   };
 
   /* Utility function */

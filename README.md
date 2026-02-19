@@ -11,3 +11,9 @@ Additional files to be excluded on deployment (since there's a nice textbox "Exc
 ```
 README.md,.gitignore,.prettierrc
 ```
+
+Additional extensions to be excluded on deployment:
+
+```
+xcf
+```
