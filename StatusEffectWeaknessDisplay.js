@@ -63,7 +63,7 @@ const SEWD = {};
       if (!statesToTrack.includes(stateId)) {
         continue;
       }
-      registerStateForEnemy(target.originalName(), stateId);
+      SEWD.revealEnemyResistance(target.originalName(), stateId);
     }
   };
 
@@ -157,18 +157,14 @@ const SEWD = {};
     );
   };
 
-  /* Utility function */
-  const registerStateForEnemy = (key, stateId) => {
-    if (!enemiesBenchmark[key]) {
-      enemiesBenchmark[key] = [];
+  /* Public API */
+  SEWD.revealEnemyResistance = (enemyName, stateId) => {
+    if (!enemiesBenchmark[enemyName]) {
+      enemiesBenchmark[enemyName] = [];
     }
     // Not using a Set cause I'm not sure how well the DataManager supports them
-    if (!enemiesBenchmark[key].includes(stateId)) {
-      enemiesBenchmark[key].push(stateId);
+    if (!enemiesBenchmark[enemyName].includes(stateId)) {
+      enemiesBenchmark[enemyName].push(stateId);
     }
-  };
-
-  SEWD.revealEnemyResistance = (enemyName, stateId) => {
-    return registerStateForEnemy(enemyName, stateId);
   };
 })();
