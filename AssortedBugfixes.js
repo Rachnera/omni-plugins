@@ -14,8 +14,10 @@
  * was way off. Like, completely offscreen off.
  * =====
  * Bug #2: Graphical glitches within the name input's help box
- * Cause: VisuMZ_0_CoreEngine was always behaving like there was five elements
- * (hardcoded value) regardless of how many things were crammed in this box.
+ * Cause: VisuMZ_0_CoreEngine defines the same generic help box for most VS
+ * menus and that one size fits all plays badly apparently plays badly with the
+ * combination of the default RMMZ resolution and the lengthier messages of the
+ * Name Inputer.
  * =====
  */
 (() => {
@@ -27,17 +29,16 @@
   };
 
   // Bug #2
-  const alias_Window_ButtonAssist_initialize = Window_ButtonAssist.prototype.initialize;
-  Window_ButtonAssist.prototype.initialize = function (rect) {
-    const missingPixels = 4;
-
-    alias_Window_ButtonAssist_initialize.call(
-      this,
-      new Rectangle(rect.x - missingPixels, rect.y, rect.width + 2 * missingPixels, rect.height),
-    );
-  };
-
+  // Change the default behavior of splitting the box into five slots of equal
+  // width with splitting it into as few slots as possible (though still of equal
+  // width regardless of content)
+  const alias_Window_ButtonAssist_refresh = Window_ButtonAssist.prototype.refresh;
   Window_ButtonAssist.prototype.refresh = function () {
+    const isNameInputContext = SceneManager._scene instanceof Scene_Name;
+    if (!isNameInputContext) {
+      return alias_Window_ButtonAssist_refresh.call(this);
+    }
+
     this.contents.clear();
 
     const config = SceneManager._scene;
