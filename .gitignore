@@ -1,5 +1,4 @@
 *.js
 !AssortedBugfixes.js
-!BattleSpeed.js
 !CommonEvenOnDefeat.js
 !StatusEffectWeaknessDisplay.js
