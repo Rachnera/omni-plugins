@@ -18,21 +18,23 @@
     return 1;
   };
 
+  const commandWindowWidth = 320;
+
   Scene_Battle.prototype.skillWindowRect = function () {
-    const ww = Graphics.boxWidth * 0.45;
+    const ww = commandWindowWidth;
     const wh = this.windowAreaHeight();
 
-    const wx = 0;
+    const wx = Graphics.boxWidth - commandWindowWidth;
     const wy = Graphics.boxHeight - wh;
 
     return new Rectangle(wx, wy, ww, wh);
   };
 
   Scene_Battle.prototype.helpWindowRect = function () {
-    const ww = Graphics.boxWidth * 0.55;
+    const ww = Graphics.boxWidth - commandWindowWidth;
     const wh = this.windowAreaHeight();
 
-    const wx = Graphics.boxWidth * 0.45;
+    const wx = 0;
     const wy = Graphics.boxHeight - wh;
 
     return new Rectangle(wx, wy, ww, wh);
