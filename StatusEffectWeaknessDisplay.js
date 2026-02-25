@@ -35,12 +35,13 @@ const SEWD = {};
       },
       size: 32,
     },
+    // TODO Replace messy configuration with notetags
     states: [
       { id: 12, iconLine: 1 }, // Opening
       { id: 13, iconLine: 2 }, // Wound
       { id: 14, iconLine: 3 }, // Damaged
       { id: 15, iconLine: 4 }, // Afflicted
-      { id: 22, iconLine: 0, displayOnlyIfVulnerable: true }, // Pushed
+      { id: 22, iconLine: 0 }, // Pushed
     ],
   };
 
@@ -88,21 +89,49 @@ const SEWD = {};
   Sprite_Enemy.prototype.initialize = function (battler) {
     alias_Sprite_Enemy_initialize.call(this, battler);
 
+    this._statesToDisplay = [];
     this._stateResistanceIcons = [];
 
-    let visibleStateIndexes = [];
     for (let i = 0; i < statesToTrack.length; i++) {
-      if (config.states[i].displayOnlyIfVulnerable && battler.stateRate(config.states[i].id) === 0) {
-        continue;
-      }
-
-      visibleStateIndexes.push(i);
-    }
-
-    visibleStateIndexes.forEach((i) => {
-      const icon = new Sprite_StateResistanceIcon(battler, i, visibleStateIndexes.length);
+      const icon = new Sprite_StateResistanceIcon(battler);
       this._stateResistanceIcons.push(icon);
       this.addChild(icon);
+    }
+  };
+
+  const getStatesToDisplay = () => {
+    if (!SceneManager._scene._skillWindow.active && !SceneManager._scene._enemyWindow.active) {
+      return [];
+    }
+
+    skill = SceneManager._scene._skillWindow.item();
+
+    return skill.effects
+      .filter((effect) => effect.code === Game_Action.EFFECT_ADD_STATE)
+      .map((effect) => effect.dataId)
+      .filter((stateId) => statesToTrack.includes(stateId));
+  };
+
+  const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
+  Sprite_Enemy.prototype.update = function () {
+    alias_Sprite_Enemy_update.call(this);
+
+    const statesToDisplay = getStatesToDisplay();
+
+    // Terrible array comparaison function, there's probably a better way nowadays.
+    if (
+      this._statesToDisplay.length === statesToDisplay.length &&
+      this._statesToDisplay.every((e) => statesToDisplay.includes(e))
+    ) {
+      return;
+    }
+
+    this._statesToDisplay = statesToDisplay;
+
+    this._stateResistanceIcons.forEach((icon, i) => {
+      icon.setStateId(this._statesToDisplay[i]);
+      icon.adjustX(i, this._statesToDisplay.length);
+      icon.adjustY(this.bitmap.height);
     });
   };
 
@@ -113,50 +142,50 @@ const SEWD = {};
   Sprite_StateResistanceIcon.prototype = Object.create(Sprite.prototype);
   Sprite_StateResistanceIcon.prototype.constructor = Sprite_StateResistanceIcon;
 
-  Sprite_StateResistanceIcon.prototype.initialize = function (enemy, index, total) {
+  Sprite_StateResistanceIcon.prototype.initialize = function (enemy) {
     Sprite.prototype.initialize.call(this);
 
+    this.hide();
+
     this._enemy = enemy;
-    this._index = index;
-    this._resistance = null;
-
-    this.anchor.x = 0.5;
-    this.anchor.y = 0.5;
-
-    this.x = -(config.icon.size * total) / 2 + index * config.icon.size + config.icon.size / 2;
 
     this.bitmap = ImageManager.loadBitmap(config.icon.file.folder, config.icon.file.name);
   };
 
-  Sprite_StateResistanceIcon.prototype.update = function () {
-    Sprite.prototype.update.call(this);
+  Sprite_StateResistanceIcon.prototype.setStateId = function (stateId) {
+    if (stateId === this._stateId) {
+      return;
+    }
 
-    if (!this._enemy?.isSelected()) {
+    this._stateId = stateId;
+
+    if (!this._stateId) {
       this.hide();
       return;
     }
 
-    this.show();
-
-    const stateId = config.states[this._index].id;
     let resistance = 0; // 0 = unknown, 1 = weak, 2 = immune
 
     if (enemiesBenchmark[this._enemy.originalName()]?.includes(stateId)) {
       resistance = this._enemy.stateRate(stateId) === 0 ? 2 : 1;
     }
 
-    if (resistance === this._resistance) {
-      return;
-    }
-
-    this._resistance = resistance;
-
     this.setFrame(
       config.icon.size * resistance,
-      config.icon.size * config.states[this._index].iconLine,
+      config.icon.size * config.states.find((cf) => cf.id === stateId).iconLine,
       config.icon.size,
       config.icon.size,
     );
+
+    this.show();
+  };
+
+  Sprite_StateResistanceIcon.prototype.adjustX = function (index, totalVisible) {
+    this.x = -(config.icon.size * totalVisible) / 2 + index * config.icon.size;
+  };
+
+  Sprite_StateResistanceIcon.prototype.adjustY = function (battlerSpriteHeight) {
+    this.y = -battlerSpriteHeight / 2 - config.icon.size;
   };
 
   /* Public API */
