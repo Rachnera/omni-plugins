@@ -6,6 +6,32 @@
  * @plugindesc Display enemies' weakness/immunity to various status effects.
  * @author Rachnera
  *
+ * @param Display when selecting skill
+ * @type select
+ * @option Yes
+ * @value always
+ * @option No
+ * @value never
+ * @default always
+ *
+ * @param Display when choosing target
+ * @type select
+ * @option For all enemies
+ * @value always
+ * @option Only for currently selected enemy
+ * @value only-selected
+ * @option Not at all
+ * @value never
+ * @default always
+ *
+ * @param Show how many icons
+ * @type select
+ * @option As many as possible
+ * @value all
+ * @option Only relevant
+ * @value only-relevant
+ * @default only-relevant
+ *
  * @help
  * This plugin requires the SEWD_icons.png file to be in the js/plugins/
  * folder to work.
@@ -27,6 +53,14 @@
 const SEWD = {};
 
 (() => {
+  const params = PluginManager.parameters("StatusEffectWeaknessDisplay");
+
+  const settings = {
+    displayOnSkillSelection: params["Display when selecting skill"] || "always",
+    displayOnTargetSelection: params["Display when choosing target"] || "always",
+    iconsToShow: params["Show how many icons"] || "only-relevant",
+  };
+
   const config = {
     icon: {
       file: {
@@ -99,9 +133,27 @@ const SEWD = {};
     }
   };
 
-  const getStatesToDisplay = () => {
+  const getStatesToDisplay = (enemy) => {
     if (!SceneManager._scene._skillWindow.active && !SceneManager._scene._enemyWindow.active) {
       return [];
+    }
+
+    if (SceneManager._scene._skillWindow.active && settings.displayOnSkillSelection === "never") {
+      return [];
+    }
+
+    if (SceneManager._scene._enemyWindow.active) {
+      if (settings.displayOnTargetSelection === "never") {
+        return [];
+      }
+
+      if (settings.displayOnTargetSelection === "only-selected" && !enemy.isSelected()) {
+        return [];
+      }
+    }
+
+    if (settings.iconsToShow === "all") {
+      return statesToTrack;
     }
 
     skill = SceneManager._scene._skillWindow.item();
@@ -116,7 +168,7 @@ const SEWD = {};
   Sprite_Enemy.prototype.update = function () {
     alias_Sprite_Enemy_update.call(this);
 
-    const statesToDisplay = getStatesToDisplay();
+    const statesToDisplay = getStatesToDisplay(this._enemy);
 
     // Terrible array comparaison function, there's probably a better way nowadays.
     if (
