@@ -1,6 +1,7 @@
 *.js
 !AssortedBugfixes.js
 !CommonEvenOnDefeat.js
+!CommonEventOnLevelUpAndPartyChange.js
 !CompactSkillDescription.js
 !StatusEffectDescriptionOnSkillSelect.js
 !StatusEffectWeaknessDisplay.js
