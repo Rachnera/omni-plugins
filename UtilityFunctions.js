@@ -17,6 +17,7 @@ const instaWinBattle = (troopId) => {
   BattleManager.setup(troopId);
   $gameTroop.members().forEach((enemy) => enemy.addNewState(1));
   BattleManager.makeRewards();
+  BattleManager.displayRewards();
   BattleManager.gainRewards();
   BattleManager.endBattle(0);
 };
