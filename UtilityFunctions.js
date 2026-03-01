@@ -16,7 +16,9 @@
  */
 
 const instaWinBattle = (troopId) => {
-  GameMessageHacks.pipeIntoGab();
+  if (GameMessageHacks.gabAvailable) {
+    GameMessageHacks.pipeIntoGab();
+  }
 
   BattleManager.setup(troopId);
   $gameTroop.members().forEach((enemy) => enemy.addNewState(1));
@@ -25,7 +27,9 @@ const instaWinBattle = (troopId) => {
   BattleManager.gainRewards();
   BattleManager.endBattle(0);
 
-  GameMessageHacks.restoreDefaults();
+  if (GameMessageHacks.gabAvailable) {
+    GameMessageHacks.restoreDefaults();
+  }
 };
 
 const GameMessageHacks = {};
@@ -51,6 +55,10 @@ const GameMessageHacks = {};
 
     GameMessageHacks.printGab();
   };
+
+  GameMessageHacks.gabAvailable = !!$plugins.find(function (plugin) {
+    return plugin.status && plugin.description.includes("[GabWindow]");
+  });
 
   GameMessageHacks.pipeIntoGab = () => {
     pipeGameMessageIntoGap = true;
