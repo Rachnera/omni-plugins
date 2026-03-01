@@ -9,8 +9,6 @@
  * @help
  * Depends on VisuStella MZ - Weakness Popups.
  *
- * Disables VS default critical/elemental popups.
- *
  * Display VS "Element Rate >= 200%" (Weakness!) when using a punisher skill
  * against an enemy with the right status and "Element Rate <= 25%" (Resist!)
  * if the enemy has not properly prepared.
@@ -25,9 +23,9 @@
       return;
     }
 
-    // Original popups, now disabled
-    // this.createWeaknessPopupsForElementRate(actor, damages);
-    // this.createWeaknessPopupsForCritical(actor, damages);
+    // Original popups
+    this.createWeaknessPopupsForElementRate(actor, damages);
+    this.createWeaknessPopupsForCritical(actor, damages);
 
     const skill = this.item();
 
