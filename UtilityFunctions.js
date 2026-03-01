@@ -61,7 +61,10 @@ const GameMessageHacks = {};
       return;
     }
 
-    SceneManager._scene.startGabWindow({ Text: "<WordWrap>" + gabBuffer.join("\n") + "</WordWrap>" });
+    SceneManager._scene.startGabWindow({
+      Text: "<WordWrap>" + gabBuffer.join("\n") + "</WordWrap>",
+      Override: { WaitTime: 30, TimePerCharacter: 0.25 },
+    });
 
     gabBuffer = [];
   };
