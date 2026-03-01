@@ -1,9 +1,9 @@
 *.js
 !AssortedBugfixes.js
+!InstantBattles.js
 !CommonEvenOnDefeat.js
 !CommonEventOnLevelUpAndPartyChange.js
 !CompactSkillDescription.js
 !FinisherWeaknessPopup.js
 !StatusEffectDescriptionOnSkillSelect.js
 !StatusEffectWeaknessDisplay.js
-!UtilityFunctions.js

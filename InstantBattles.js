@@ -1,9 +1,9 @@
 //=============================================================================
-// UtilityFunctions.js
+// InstantBattles.js
 //=============================================================================
 /*:
  * @target MZ
- * @plugindesc Various pieces of code to be called through the Script command
+ * @plugindesc Instantly execute battle related code without actually starting a fight scene
  * @author Rachnera
  * @help
  * =====
