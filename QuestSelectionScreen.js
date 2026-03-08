@@ -173,11 +173,9 @@
       let lockedText = item.lockedMessage;
 
       if (!item.commonEventId) {
-        lockedText = "Locked due to missing a common event id to trigger on selection.";
-      }
-
-      if (!item.lockedMessage) {
-        lockedText = "Missing a message explaining why the mission cannot be proceeded.";
+        lockedText = "Locked due to missing a common event to execute on mission selection.";
+      } else if (!item.lockedMessage) {
+        lockedText = "Missing a message explaining why the mission cannot be proceeded with.";
       }
 
       text += "<br><br>" + "\\C[18]" + lockedText;
