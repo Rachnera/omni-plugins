@@ -12,7 +12,9 @@
  * @help
  * Plugin Command -> QuestSelectionScreen -> Open Screen to show the menu
  *
- * Dependent on VisuStella Core for auto text wrapping. No other dependency.
+ * Dependent on VisuStella Core for auto text wrapping and other text features.
+ * https://www.yanfly.moe/wiki/Category:Text_Codes_(MZ)#Message_Core_Hard-Coded_Text_Codes
+ * No other dependency.
  */
 
 const Omnipocalypse_QuestsData = (() => {
@@ -40,6 +42,7 @@ const Omnipocalypse_QuestsData = (() => {
         // Less than four people in party, MC included
         return $gameParty.size() < 4;
       },
+      lockedMessage: "I have to reject this plan. There's no way you can make it with so few people.",
     },
     {
       name: "Retake the bridge",
@@ -50,6 +53,7 @@ const Omnipocalypse_QuestsData = (() => {
       lockedIf: () => {
         return $gameSwitches.value(386); // Bridge Failed ON
       },
+      lockedMessage: "Unfortunately, the bridge is now swarmed with so many hostiles that further work is impossible.",
     },
     {
       name: "Investigate strange zombies",
@@ -117,7 +121,12 @@ const Omnipocalypse_QuestsData = (() => {
   };
 
   Scene_QuestSelection.prototype.createSelectWindow = function () {
-    const data = Omnipocalypse_QuestsData.filter((quest) => !!quest.availableIf && quest.availableIf());
+    const data = Omnipocalypse_QuestsData.filter((quest) => !!quest.availableIf && quest.availableIf()).map((data) => {
+      return {
+        ...data,
+        locked: data.lockedIf ? data.lockedIf() : false,
+      };
+    });
 
     this._selectWindow = new Window_QuestSelection(data, (item) => {
       this._descriptionWindow.setItem(item);
@@ -166,11 +175,7 @@ const Omnipocalypse_QuestsData = (() => {
   };
 
   Window_QuestSelection.prototype.isEnabled = function (item) {
-    if (item.lockedIf) {
-      return !item.lockedIf();
-    }
-
-    return true;
+    return !item.locked;
   };
 
   Window_QuestSelection.prototype.refresh = function () {
@@ -220,13 +225,18 @@ const Omnipocalypse_QuestsData = (() => {
   Window_QuestDescription.prototype.refresh = function () {
     this.contents.clear();
 
-    if (!this._item) {
+    const item = this._item;
+    if (!item) {
       return;
     }
 
-    const text = this._item.description || "Missing mission description";
-    const marginLeft = 8;
+    let text = item.description || "Missing mission description";
 
+    if (item.locked && item.lockedMessage) {
+      text += "<br><br>" + "\\C[18]" + item.lockedMessage;
+    }
+
+    const marginLeft = 8;
     this.drawTextEx("<WordWrap>" + text, marginLeft, 0, this.innerWidth - marginLeft);
   };
 })();
