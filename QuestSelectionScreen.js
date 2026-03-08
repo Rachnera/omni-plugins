@@ -25,6 +25,7 @@ const Omnipocalypse_QuestsData = (() => {
 
   return [
     {
+      commonEventId: 15,
       name: "Robot horde in the parking lot",
       description: "The robot enemies are proliferating in a nearby parking lot and could become a threat.",
       availableIf: () => {
@@ -33,6 +34,7 @@ const Omnipocalypse_QuestsData = (() => {
       },
     },
     {
+      commonEventId: 16,
       name: "Retake the radio tower",
       description: "We need to retake the radio tower, if we can find a pair of teams to clear the way.",
       availableIf: () => {
@@ -45,6 +47,7 @@ const Omnipocalypse_QuestsData = (() => {
       lockedMessage: "I have to reject this plan. There's no way you can make it with so few people.",
     },
     {
+      commonEventId: 17,
       name: "Retake the bridge",
       description: "You think you're ready to retake the bridge? Retreat might be difficult once we attract attention.",
       availableIf: () => {
@@ -56,6 +59,7 @@ const Omnipocalypse_QuestsData = (() => {
       lockedMessage: "Unfortunately, the bridge is now swarmed with so many hostiles that further work is impossible.",
     },
     {
+      commonEventId: 18,
       name: "Investigate strange zombies",
       description: "We'd welcome anyone who can go out and investigate these strange new zombies.",
       availableIf: () => {
@@ -64,6 +68,7 @@ const Omnipocalypse_QuestsData = (() => {
       },
     },
     {
+      commonEventId: 18,
       name: "Find Alice",
       description:
         "Anderson hasn't officially given the mission yet, but there's nothing stopping us from going to find Alice.",
@@ -124,12 +129,16 @@ const Omnipocalypse_QuestsData = (() => {
     const data = Omnipocalypse_QuestsData.filter((quest) => !!quest.availableIf && quest.availableIf()).map((data) => {
       return {
         ...data,
-        locked: data.lockedIf ? data.lockedIf() : false,
+        locked: !data.commonEventId || (data.lockedIf && data.lockedIf()),
       };
     });
 
     this._selectWindow = new Window_QuestSelection(data, (item) => {
       this._descriptionWindow.setItem(item);
+    });
+    this._selectWindow.setHandler("ok", () => {
+      $gameTemp.reserveCommonEvent(this._selectWindow.item().commonEventId);
+      this.popScene();
     });
     this._selectWindow.setHandler("cancel", this.popScene.bind(this));
     this.addWindow(this._selectWindow);
@@ -232,8 +241,18 @@ const Omnipocalypse_QuestsData = (() => {
 
     let text = item.description || "Missing mission description";
 
-    if (item.locked && item.lockedMessage) {
-      text += "<br><br>" + "\\C[18]" + item.lockedMessage;
+    if (item.locked) {
+      let lockedText = item.lockedMessage;
+
+      if (!item.commonEventId) {
+        lockedText = "Locked due to missing a common event id to trigger on selection.";
+      }
+
+      if (!item.lockedMessage) {
+        lockedText = "Missing a message explaining why the mission cannot be proceeded.";
+      }
+
+      text += "<br><br>" + "\\C[18]" + lockedText;
     }
 
     const marginLeft = 8;
