@@ -15,5 +15,5 @@ README.md,.gitignore,.prettierrc
 Additional extensions to be excluded on deployment:
 
 ```
-xcf
+xcf,example
 ```

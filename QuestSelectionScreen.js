@@ -10,91 +10,19 @@
  * @desc Show the quest selection menu
  *
  * @help
- * Plugin Command -> QuestSelectionScreen -> Open Screen to show the menu
+ * To show the menu:
+ * Plugin Command -> QuestSelectionScreen -> Open Screen
+ *
+ * Require QuestSelectionScreen_Data plugin to work:
+ * - Rename or copy-paste QuestSelectionScreen_Data.js.example as
+ *   QuestSelectionScreen_Data.js
+ * - Enable it as any plugin
+ * - Edit it as much as you need/like
  *
  * Dependent on VisuStella Core for auto text wrapping and other text features.
  * https://www.yanfly.moe/wiki/Category:Text_Codes_(MZ)#Message_Core_Hard-Coded_Text_Codes
  * No other dependency.
  */
-
-const Omnipocalypse_QuestsData = (() => {
-  const doneWithAlice = () => {
-    // Chased off Alice OFF or Finished Alice OFF
-    return $gameSwitches.value(264) || $gameSwitches.value(269);
-  };
-
-  return [
-    {
-      commonEventId: 15,
-      name: "Robot horde in the parking lot",
-      description: "The robot enemies are proliferating in a nearby parking lot and could become a threat.",
-      availableIf: () => {
-        // Second Wave Missions ON and Susie Boss OFF
-        return $gameSwitches.value(243) && !$gameSwitches.value(200);
-      },
-    },
-    {
-      commonEventId: 16,
-      name: "Retake the radio tower",
-      description: "We need to retake the radio tower, if we can find a pair of teams to clear the way.",
-      availableIf: () => {
-        return !$gameSwitches.value(380); // Radio Tower Done OFF
-      },
-      lockedIf: () => {
-        // Less than four people in party, MC included
-        return $gameParty.size() < 4;
-      },
-      lockedMessage: "I have to reject this plan. There's no way you can make it with so few people.",
-    },
-    {
-      commonEventId: 17,
-      name: "Retake the bridge",
-      description: "You think you're ready to retake the bridge? Retreat might be difficult once we attract attention.",
-      availableIf: () => {
-        return !$gameSwitches.value(400); // Bridge Done OFF
-      },
-      lockedIf: () => {
-        return $gameSwitches.value(386); // Bridge Failed ON
-      },
-      lockedMessage: "Unfortunately, the bridge is now swarmed with so many hostiles that further work is impossible.",
-    },
-    {
-      commonEventId: 18,
-      name: "Investigate strange zombies",
-      description: "We'd welcome anyone who can go out and investigate these strange new zombies.",
-      availableIf: () => {
-        // Second Wave Missions ON and Have met Alice OFF and not done with Alice (cf doneWithAlice function definition above)
-        return $gameSwitches.value(243) && !$gameSwitches.value(279) && !doneWithAlice();
-      },
-    },
-    {
-      commonEventId: 18,
-      name: "Find Alice",
-      description:
-        "Anderson hasn't officially given the mission yet, but there's nothing stopping us from going to find Alice.",
-      availableIf: () => {
-        // Have met Alice ON and not done with Alice
-        return $gameSwitches.value(279) && !doneWithAlice();
-      },
-    },
-
-    {
-      name: "Always available",
-      availableIf: () => {
-        return true;
-      },
-    },
-    {
-      name: "Always available but also always locked",
-      availableIf: () => {
-        return true;
-      },
-      lockedIf: () => {
-        return true;
-      },
-    },
-  ];
-})();
 
 (() => {
   PluginManager.registerCommand("QuestSelectionScreen", "Open Screen", () => {
