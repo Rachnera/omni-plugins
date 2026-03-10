@@ -30,7 +30,8 @@
   });
 
   const selectionBoxWidth = 360;
-  const selectionBoxMaxLines = 6;
+  const selectionBoxHeight = 204;
+  const descriptionBoxWidth = 480;
 
   function Scene_QuestSelection() {
     this.initialize(...arguments);
@@ -88,9 +89,12 @@
     this._data = data;
     this._onSelect = onSelect;
 
-    const lines = Math.min(selectionBoxMaxLines, data.length);
-    const height = (this.lineHeight() + 12) * lines + 12;
-    const rect = new Rectangle(0, (Graphics.boxHeight - height) / 2, selectionBoxWidth, height);
+    const rect = new Rectangle(
+      Graphics.boxWidth - descriptionBoxWidth + (descriptionBoxWidth - selectionBoxWidth) / 2,
+      0,
+      selectionBoxWidth,
+      selectionBoxHeight,
+    );
 
     Window_Selectable.prototype.initialize.call(this, rect);
 
@@ -143,12 +147,13 @@
   Window_QuestDescription.prototype.constructor = Window_QuestDescription;
 
   Window_QuestDescription.prototype.initialize = function () {
-    const marginLeft = 12;
+    const marginTop = 8;
+
     const rect = new Rectangle(
-      selectionBoxWidth + marginLeft,
-      0,
-      Graphics.boxWidth - selectionBoxWidth - marginLeft,
-      Graphics.boxHeight,
+      Graphics.boxWidth - descriptionBoxWidth,
+      selectionBoxHeight + marginTop,
+      descriptionBoxWidth,
+      Graphics.boxHeight - selectionBoxHeight - marginTop,
     );
 
     Window_Base.prototype.initialize.call(this, rect);
