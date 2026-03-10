@@ -31,7 +31,7 @@
 
   const selectionBoxWidth = 360;
   const selectionBoxHeight = 204;
-  const descriptionBoxWidth = 480;
+  const descriptionBoxWidth = 540;
 
   function Scene_QuestSelection() {
     this.initialize(...arguments);
@@ -172,7 +172,7 @@
       return;
     }
 
-    let text = item.description || "Missing mission description";
+    const texts = item.description?.split("\n") || ["Missing mission description"];
 
     if (item.locked) {
       let lockedText = item.lockedMessage;
@@ -183,10 +183,31 @@
         lockedText = "Missing a message explaining why the mission cannot be proceeded with.";
       }
 
-      text += "<br><br>" + "\\C[18]" + lockedText;
+      texts.push("\\C[18]" + lockedText);
     }
 
     const marginLeft = 8;
-    this.drawTextEx("<WordWrap>" + text, marginLeft, 0, this.innerWidth - marginLeft);
+    const drawRemainingText = (remainingTexts, y) => {
+      this.drawTextEx("<WordWrap>" + remainingTexts.join("<br><br>"), marginLeft, y, this.innerWidth - marginLeft);
+    };
+
+    if (!item.face) {
+      return drawRemainingText(texts, 0);
+    }
+
+    const faceSize = 144;
+    this.CGMZ_loadFace(item.face[0], item.face[1], 0, 0, faceSize, faceSize);
+
+    // The first line of text is displayed next to the face
+    this.drawTextEx("<WordWrap>" + texts[0], marginLeft + faceSize, 0, this.innerWidth - marginLeft - faceSize);
+
+    const marginBottom = 8;
+    drawRemainingText(texts.slice(1), faceSize + marginBottom);
+  };
+
+  // Copy-paste from CGMZ_Core, to avoid a depenceny just for that snippet
+  Window_QuestDescription.prototype.CGMZ_loadFace = function (faceName, faceIndex, x, y, width, height) {
+    const bitmap = ImageManager.loadFace(faceName);
+    bitmap.addLoadListener(this.drawFace.bind(this, faceName, faceIndex, x, y, width, height));
   };
 })();

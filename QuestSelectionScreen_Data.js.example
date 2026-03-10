@@ -25,6 +25,8 @@
  *   conditions to begin.
  * - lockedMessage: Optional. Message explaining why the mission is locked (see
  *   previous option)
+ * - face: Optional. [filename, index] of a face to be displayed next to the
+ *   description.
  */
 const Omnipocalypse_QuestsData = (() => {
   const doneWithAlice = () => {
@@ -54,6 +56,7 @@ const Omnipocalypse_QuestsData = (() => {
         return $gameParty.size() < 4;
       },
       lockedMessage: "I have to reject this plan. There's no way you can make it with so few people.",
+      face: ["Anderson", 1],
     },
     {
       commonEventId: 17,
@@ -66,6 +69,7 @@ const Omnipocalypse_QuestsData = (() => {
         return $gameSwitches.value(386); // Bridge Failed ON
       },
       lockedMessage: "Unfortunately, the bridge is now swarmed with so many hostiles that further work is impossible.",
+      face: ["Anderson", 1],
     },
     {
       commonEventId: 18,
@@ -92,6 +96,7 @@ const Omnipocalypse_QuestsData = (() => {
       availableIf: () => {
         return true;
       },
+      face: ["Nature", 4],
     },
     {
       name: "Always available but also always locked",
