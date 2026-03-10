@@ -89,12 +89,7 @@
     this._data = data;
     this._onSelect = onSelect;
 
-    const rect = new Rectangle(
-      Graphics.boxWidth - descriptionBoxWidth + (descriptionBoxWidth - selectionBoxWidth) / 2,
-      0,
-      selectionBoxWidth,
-      selectionBoxHeight,
-    );
+    const rect = new Rectangle(Graphics.boxWidth - selectionBoxWidth, 0, selectionBoxWidth, selectionBoxHeight);
 
     Window_Selectable.prototype.initialize.call(this, rect);
 
