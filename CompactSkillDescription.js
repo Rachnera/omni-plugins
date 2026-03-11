@@ -18,7 +18,7 @@
     return 1;
   };
 
-  const commandWindowWidth = 320;
+  const commandWindowWidth = 420;
 
   Scene_Battle.prototype.skillWindowRect = function () {
     const ww = commandWindowWidth;
