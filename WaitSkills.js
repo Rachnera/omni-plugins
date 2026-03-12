@@ -9,17 +9,13 @@
  * All notetags are to be added to the relevant skills
  *
  * To wait until the end of the next action:
- * <JS Pre-End Action>
- *   WS.waitOneAction(user)
- * </JS Pre-End Action>
+ * <WaitOneAction>
  */
-
-const WS = {};
 
 (() => {
   let actorToMove = null;
 
-  WS.waitOneAction = (actor) => {
+  const waitOneAction = (actor) => {
     actorToMove = actor;
   };
 
@@ -44,6 +40,15 @@ const WS = {};
     moveIfNeeded();
 
     alias_BattleManager_processTurn.call(this);
+  };
+
+  const alias_BattleManager_endAction = BattleManager.endAction;
+  BattleManager.endAction = function () {
+    if (this._action?.item()?.note?.match(/<WaitOneAction>/g)) {
+      waitOneAction(this._subject);
+    }
+
+    alias_BattleManager_endAction.call(this);
   };
 
   const alias_BattleManager_endBattle = BattleManager.endBattle;
