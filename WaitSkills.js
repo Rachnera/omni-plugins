@@ -88,5 +88,6 @@
 
   const cleanup = () => {
     actorToMove = null;
+    targetTurn = null;
   };
 })();
