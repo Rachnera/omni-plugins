@@ -14,6 +14,10 @@
  * All standard text codes should be supported within the text format option:
  * https://www.yanfly.moe/wiki/Category:Text_Codes_(MZ)
  *
+ * Only self-recovery ("user.gainTP") is considered for the purpose of this
+ * plugin. Information about other characters' gaining TP should be conveyed in
+ * a different way.
+ *
  * The case where a skill both costs and restores TP to its user isn't covered.
  */
 
