@@ -13,6 +13,11 @@
  * the position of battlers. And since, in JS, 2+2=4 but 2+"2"="22", the value
  * was way off. Like, completely offscreen off.
  * =====
+ * Bug #2: State Rate 0% not being equivalent to State Resist
+ * Not technically a bug per say as I guess there are use cases where this can
+ * make sense but, in the case of this project, putting an equal sign between
+ * the two should spare a few headaches now and in the future.
+ * =====
  */
 (() => {
   // Bug #1
@@ -20,5 +25,15 @@
   const alias_Game_Party_maxBattleMembers = Game_Party.prototype.maxBattleMembers;
   Game_Party.prototype.maxBattleMembers = function () {
     return Number(alias_Game_Party_maxBattleMembers.call(this));
+  };
+
+  // Bug #2
+  const alias_Game_BattlerBase_isStateResist = Game_BattlerBase.prototype.isStateResist;
+  Game_BattlerBase.prototype.isStateResist = function (stateId) {
+    if (this.stateRate(stateId) === 0) {
+      return true;
+    }
+
+    return alias_Game_BattlerBase_isStateResist.call(this, stateId);
   };
 })();
