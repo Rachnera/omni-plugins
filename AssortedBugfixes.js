@@ -13,12 +13,6 @@
  * the position of battlers. And since, in JS, 2+2=4 but 2+"2"="22", the value
  * was way off. Like, completely offscreen off.
  * =====
- * Bug #2: Graphical glitches within the name input's help box
- * Cause: VisuMZ_0_CoreEngine defines the same generic help box for most VS
- * menus and that one size fits all plays badly apparently plays badly with the
- * combination of the default RMMZ resolution and the lengthier messages of the
- * Name Inputer.
- * =====
  */
 (() => {
   // Bug #1
@@ -26,49 +20,5 @@
   const alias_Game_Party_maxBattleMembers = Game_Party.prototype.maxBattleMembers;
   Game_Party.prototype.maxBattleMembers = function () {
     return Number(alias_Game_Party_maxBattleMembers.call(this));
-  };
-
-  // Bug #2
-  // Change the default behavior of splitting the box into five slots of equal
-  // width with splitting it into as few slots as possible (though still of equal
-  // width regardless of content)
-  const alias_Window_ButtonAssist_refresh = Window_ButtonAssist.prototype.refresh;
-  Window_ButtonAssist.prototype.refresh = function () {
-    const isNameInputContext = SceneManager._scene instanceof Scene_Name;
-    if (!isNameInputContext) {
-      return alias_Window_ButtonAssist_refresh.call(this);
-    }
-
-    this.contents.clear();
-
-    const config = SceneManager._scene;
-    const textFmt = VisuMZ.CoreEngine.Settings.ButtonAssist.TextFmt;
-
-    const toDraw = [];
-
-    for (let i = 1; i <= 5; i++) {
-      const a1 = config["buttonAssistKey%1".format(i)]();
-      const a2 = config["buttonAssistText%1".format(i)]();
-
-      this._data["key%1".format(i)] = a1;
-      this._data["text%1".format(i)] = a2;
-
-      if (!!a1 && !!a2) {
-        toDraw.push({
-          text: textFmt.format(a1, a2),
-          offset: config["buttonAssistOffset%1".format(i)](),
-        });
-      }
-    }
-
-    const width = this.innerWidth / toDraw.length;
-    const padding = this.itemPadding();
-    let x = 0;
-
-    toDraw.forEach(({ text, offset }) => {
-      x += padding + offset;
-      this.drawTextEx(text, x, 0, width - padding * 2);
-      x += padding + width;
-    });
   };
 })();
