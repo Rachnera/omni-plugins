@@ -25,20 +25,26 @@
   let targetTurn = null;
 
   const waitOneAction = (actor) => {
-    actorToMove = actor;
-    targetTurn = 1;
+    prepareWait(actor, 1);
   };
 
   const waitForNextAlly = (actor) => {
-    actorToMove = actor;
-    targetTurn = SceneManager._scene._ctbTurnOrderWindow._turnOrderContainer.findIndex(
-      (sprite) => sprite.battler() instanceof Game_Actor && sprite.battler()._actorId !== actor._actorId,
+    prepareWait(
+      actor,
+      SceneManager._scene._ctbTurnOrderWindow._turnOrderContainer.findIndex(
+        (sprite) => sprite.battler() instanceof Game_Actor && sprite.battler()._actorId !== actor._actorId,
+      ),
     );
+  };
 
-    // Abort ship if couldn't find a position to move to
-    if (!targetTurn) {
-      cleanup();
+  const prepareWait = (actor, turn) => {
+    // Abort ship if anything is wrong
+    if (!actor || !turn) {
+      return cleanup();
     }
+
+    actorToMove = actor;
+    targetTurn = turn;
   };
 
   const moveIfNeeded = () => {
@@ -48,6 +54,11 @@
 
     actorToMove.setTurnOrderCTB(targetTurn);
     cleanup();
+  };
+
+  const cleanup = () => {
+    actorToMove = null;
+    targetTurn = null;
   };
 
   const alias_BattleManager_selectNextActor = BattleManager.selectNextActor;
@@ -68,11 +79,11 @@
   BattleManager.endAction = function () {
     const notetag = this._action?.item()?.note;
 
-    if (notetag?.match(/<WaitOneAction>/g)) {
+    if (notetag?.match(/<WaitOneAction>/)) {
       waitOneAction(this._subject);
     }
 
-    if (notetag?.match(/<WaitForNextAlly>/g)) {
+    if (notetag?.match(/<WaitForNextAlly>/)) {
       waitForNextAlly(this._subject);
     }
 
@@ -84,10 +95,5 @@
     cleanup(); // Security cleanup
 
     alias_BattleManager_endBattle.call(this, result);
-  };
-
-  const cleanup = () => {
-    actorToMove = null;
-    targetTurn = null;
   };
 })();
