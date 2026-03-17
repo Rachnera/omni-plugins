@@ -18,6 +18,12 @@
  * make sense but, in the case of this project, putting an equal sign between
  * the two should spare a few headaches now and in the future.
  * =====
+ * Bug #3: MZ default event fast forward triggering choices unintentionally
+ * (because it's triggered by long pressing the "ok" key).
+ * Solution: Have the quick events (also) happen when pressing the VisuStella
+ * fast forward key (default: Page Down/RB).
+ * Possible caveat: There might be a good reason why VS didn't do that natively.
+ * =====
  */
 (() => {
   // Bug #1
@@ -35,5 +41,23 @@
     }
 
     return alias_Game_BattlerBase_isStateResist.call(this, stateId);
+  };
+
+  // Bug #3
+  const alias_Scene_Map_isFastForward = Scene_Map.prototype.isFastForward;
+  Scene_Map.prototype.isFastForward = function () {
+    if (alias_Scene_Map_isFastForward.call(this)) {
+      return true;
+    }
+
+    if (!$gameMap.isEventRunning() || SceneManager.isSceneChanging()) {
+      return false;
+    }
+
+    if (Input.isPressed(VisuMZ.MessageCore.Settings.General.FastForwardKey)) {
+      return true;
+    }
+
+    return false;
   };
 })();
