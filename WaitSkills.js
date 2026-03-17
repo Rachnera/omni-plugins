@@ -18,6 +18,13 @@
  * <JS Skill Visible>
  *   visible = $gameParty.size() > 1;
  * </JS Skill Visible>
+ *
+ * To increase the duration of all ongoing states on the subject by one:
+ * <AllStatesPlusOneTurn>
+ * Important note: Already done by default when using one of the previous tags.
+ * Provided if needed elsewhere, like for skills granting more actions.
+ * Applied before the states are checked (and possibly removed) at the end
+ * of the action.
  */
 
 (() => {
@@ -45,6 +52,14 @@
 
     actorToMove = actor;
     targetTurn = turn;
+
+    increaseAllStateDurationsByOne(actor);
+  };
+
+  const increaseAllStateDurationsByOne = (actor) => {
+    actor._states.forEach((stateId) => {
+      actor.addStateTurns(stateId, 1);
+    });
   };
 
   const moveIfNeeded = () => {
@@ -85,6 +100,10 @@
 
     if (notetag?.match(/<WaitForNextAlly>/)) {
       waitForNextAlly(this._subject);
+    }
+
+    if (notetag?.match(/<AllStatesPlusOneTurn>/)) {
+      increaseAllStateDurationsByOne(this._subject);
     }
 
     alias_BattleManager_endAction.call(this);
