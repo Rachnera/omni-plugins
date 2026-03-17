@@ -15,9 +15,9 @@
  * <WaitForNextAlly>
  * Bonus: You likely also want to add the following tag so the skill doesn't
  * show up for parties of one:
- * <JS Command Visible>
+ * <JS Skill Visible>
  *   visible = $gameParty.size() > 1;
- * </JS>
+ * </JS Skill Visible>
  */
 
 (() => {
