@@ -48,6 +48,9 @@
     }
     this._omniIconsCache = icons;
 
+    const relevantStates = this._battler.states().filter((state) => state.iconIndex > 0);
+    const relevantBuffes = [...Array(8).keys()].filter((i) => this._battler.buff(i) !== 0);
+
     const padding = 4;
     const widthWithPadding = ImageManager.iconWidth + padding * 2;
 
@@ -61,6 +64,11 @@
       sprite.x = -((icons.length - 1) * widthWithPadding) / 2 + i * widthWithPadding;
       sprite.y = 0;
       sprite._iconIndex = icons[i];
+
+      // Required to update the turns count live
+      sprite._relevantState = i < relevantStates.length ? relevantStates[i] : null;
+      sprite._relevantBuff = i >= relevantStates.length ? relevantBuffes[i - relevantStates.length] : null;
+
       sprite.updateFrame();
       sprite.show();
     }
@@ -80,7 +88,26 @@
   Sprite_StaticStateIcon.prototype.constructor = Sprite_StaticStateIcon;
 
   Sprite_StaticStateIcon.prototype.update = function () {
-    // Does not self-update
+    this.updateTurnDisplaySprite();
+  };
+
+  Sprite_StaticStateIcon.prototype.updateTurnDisplaySprite = function () {
+    if (!this._battler || !this._iconIndex) {
+      return;
+    }
+
+    this.resetFontSettings();
+    this.contents.clear();
+
+    if (this._relevantState) {
+      Window_Base.prototype.drawActorStateTurns.call(this, this._battler, this._relevantState, 0, 0);
+      Window_Base.prototype.drawActorStateData.call(this, this._battler, this._relevantState, 0, 0);
+    }
+
+    if (this._relevantBuff) {
+      Window_Base.prototype.drawActorBuffTurns.call(this, this._battler, this._relevantBuff, 0, 0);
+      Window_Base.prototype.drawActorBuffRates.call(this, this._battler, this._relevantBuff, 0, 0);
+    }
   };
 
   // Disable original, "carousel", icon
