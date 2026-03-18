@@ -7,6 +7,8 @@
  * @author Rachnera
  *
  * @help
+ * Only for enemies at the moment
+ *
  * Limited to seven different icons at once. This is a soft limit that can
  * easily be changed, though dealing with the design issue of where to place
  * all these icons on screen might prove more difficult.
@@ -110,8 +112,13 @@
     }
   };
 
-  // Disable original, "carousel", icon
+  const alias_Sprite_StateIcon_update = Sprite_StateIcon.prototype.update;
   Sprite_StateIcon.prototype.update = function () {
-    // Do nothing
+    if (this._battler instanceof Game_Enemy) {
+      // Disable original, "carousel", icon, for enemies
+      return;
+    }
+
+    alias_Sprite_StateIcon_update.call(this);
   };
 })();
