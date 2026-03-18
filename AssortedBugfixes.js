@@ -24,6 +24,9 @@
  * fast forward key (default: Page Down/RB).
  * Possible caveat: There might be a good reason why VS didn't do that natively.
  * =====
+ * Bug #4: Confusing "HP Damage Multiplier" in skill description
+ * Just removing the line for now
+ * =====
  */
 (() => {
   // Bug #1
@@ -58,6 +61,11 @@
       return true;
     }
 
+    return false;
+  };
+
+  // Bug #4
+  Window_ShopStatus.prototype.drawItemDamageAmount = function () {
     return false;
   };
 })();
