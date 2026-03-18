@@ -64,7 +64,7 @@
       }
 
       sprite.x = -((icons.length - 1) * widthWithPadding) / 2 + i * widthWithPadding;
-      sprite.y = 0;
+      sprite.y = 24 + 4; // Name height + a small margin
       sprite._iconIndex = icons[i];
 
       // Required to update the turns count live
