@@ -31,6 +31,8 @@
   let actorToMove = null;
   let targetTurn = null;
 
+  let disableNextCtbAnimation = false;
+
   const waitOneAction = (actor) => {
     prepareWait(actor, 1);
   };
@@ -67,6 +69,7 @@
       return;
     }
 
+    disableNextCtbAnimation = true;
     actorToMove.setTurnOrderCTB(targetTurn);
     cleanup();
   };
@@ -114,5 +117,15 @@
     cleanup(); // Security cleanup
 
     alias_BattleManager_endBattle.call(this, result);
+  };
+
+  const alias_Game_Battler_onCtbOrderChange = Game_Battler.prototype.onCtbOrderChange;
+  Game_Battler.prototype.onCtbOrderChange = function (varA) {
+    if (disableNextCtbAnimation) {
+      disableNextCtbAnimation = false;
+      return;
+    }
+
+    alias_Game_Battler_onCtbOrderChange.call(this, varA);
   };
 })();
