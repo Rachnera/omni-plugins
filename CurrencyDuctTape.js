@@ -27,7 +27,23 @@
   const alias_BattleManager_makeRewards = BattleManager.makeRewards;
   BattleManager.makeRewards = function () {
     alias_BattleManager_makeRewards.call(this);
-    this._rewards.usd = 10; //FIXME Hardcoded for example
+    this._rewards.usd = $gameTroop.usdTotal();
+  };
+
+  Game_Troop.prototype.usdTotal = function () {
+    return this.deadMembers().reduce((r, enemy) => r + enemy.usd(), 0);
+  };
+
+  Game_Enemy.prototype.usd = function () {
+    const regexp = /<USD>(.+)<\/USD>/ms;
+
+    const result = this.enemy().note.match(regexp);
+
+    if (!result) {
+      return 0;
+    }
+
+    return Number(result[1]);
   };
 
   const alias_BattleManager_displayRewards = BattleManager.displayRewards;
