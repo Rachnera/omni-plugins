@@ -15,8 +15,8 @@
  * - Enemy can now be specified a cash reward as a notetag:
  *   <USD>25</USD>
  * - The appropriate amount of cash is awarded at the end of the battle
- * - This shows on the VisuStella MZ - Victory Aftermath screen
- * - This shows on quick battle results.
+ * - This shows on the VisuStella MZ - Victory Aftermath screen (if > 0).
+ * - This shows on quick battle results (if > 0).
  */
 
 (() => {
@@ -70,4 +70,13 @@
   BattleManager.gainUSD = function () {
     $gameVariables.setValue(variableId, ($gameVariables.value(variableId) || 0) + (this._rewards.usd || 0));
   };
+
+  // Could technically have been manually configured in:
+  // VisuMZ_3_VictoryAftermath -> General Settings > Reward Strips
+  Window_VictoryRewards._rewardSets?.push({
+    Label: "USD",
+    Show: () => BattleManager._rewards.usd > 0,
+    Text: () => "$",
+    Data: () => BattleManager._rewards.usd,
+  });
 })();
