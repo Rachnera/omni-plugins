@@ -20,6 +20,9 @@
  * To only display enemy's names on select:
  * VisuMZ_1_BattleCore -> Enemy Battler Settings -> Name > Name Visibility
  * Turn all options to false save for By Selection?
+ *
+ * To reduce the length of the CTB bar:
+ * VisuMZ_2_BattleSystemCTB -> Turn Order Display -> Slots > Total Horizontal
  */
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
