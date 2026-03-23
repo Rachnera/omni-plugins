@@ -16,6 +16,10 @@
  *
  * Enemies' health bars and names are on a different layer from the other
  * enemy-related sprites, which may require further consideration.
+ *
+ * To only display enemy's names on select:
+ * VisuMZ_1_BattleCore -> Enemy Battler Settings -> Name > Name Visibility
+ * Turn all options to false save for By Selection?
  */
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
