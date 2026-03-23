@@ -1,5 +1,6 @@
 *.js
 !AssortedBugfixes.js
+!BattleUIAdjusters.js
 !CommonEvenOnDefeat.js
 !CommonEventOnLevelUpAndPartyChange.js
 !CompactSkillDescription.js
