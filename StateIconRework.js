@@ -6,6 +6,14 @@
  * @plugindesc Display state icons side by side instead of rotating them
  * @author Rachnera
  *
+ * @param Position of state icons
+ * @type select
+ * @option Horizontal bottom
+ * @value bottom
+ * @option Vertical left
+ * @value left
+ * @default bottom
+ *
  * @param Scale of state icons
  * @default 1.0
  *
@@ -25,6 +33,7 @@
 (() => {
   const params = PluginManager.parameters("StateIconRework");
   const stateIconScale = Number(params["Scale of state icons"] || 1.0);
+  const iconsPosition = params["Position of state icons"] || "bottom";
 
   const maxIcons = 7;
 
@@ -59,9 +68,6 @@
     const relevantStates = this._battler.states().filter((state) => state.iconIndex > 0);
     const relevantBuffes = [...Array(8).keys()].filter((i) => this._battler.buff(i) !== 0);
 
-    const padding = 2;
-    const widthWithPadding = ImageManager.iconWidth * stateIconScale + padding * 2;
-
     for (let i = 0; i < maxIcons; i++) {
       const sprite = this._staticStateIconSprites[i];
       if (i >= icons.length) {
@@ -69,9 +75,8 @@
         continue;
       }
 
-      sprite.x = -((icons.length - 1) * widthWithPadding) / 2 + i * widthWithPadding;
-      sprite.y = 24 + 4; // Name height + a small margin
       sprite._iconIndex = icons[i];
+      sprite.readjustPosition(i, icons.length, this);
 
       // Required to update the turns count live
       sprite._relevantState = i < relevantStates.length ? relevantStates[i] : null;
@@ -121,6 +126,21 @@
       Window_Base.prototype.drawActorBuffTurns.call(this, this._battler, this._relevantBuff, 0, 0);
       Window_Base.prototype.drawActorBuffRates.call(this, this._battler, this._relevantBuff, 0, 0);
     }
+  };
+
+  Sprite_StaticStateIcon.prototype.readjustPosition = function (index, visibleIconsCount, enemySprite) {
+    const padding = 2;
+    const widthWithPadding = ImageManager.iconWidth * stateIconScale + padding * 2;
+    const heightWithPadding = ImageManager.iconHeight * stateIconScale + padding * 2;
+
+    if (iconsPosition === "left") {
+      this.x = -enemySprite.width / 2 - widthWithPadding / 2;
+      this.y = -enemySprite.height / 2 - (visibleIconsCount * heightWithPadding) / 2 + index * heightWithPadding;
+      return;
+    }
+
+    this.x = -((visibleIconsCount - 1) * widthWithPadding) / 2 + index * widthWithPadding;
+    this.y = 24 + 4; // Name height + a small margin
   };
 
   const alias_Sprite_StateIcon_update = Sprite_StateIcon.prototype.update;
