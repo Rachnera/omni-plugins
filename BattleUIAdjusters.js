@@ -11,6 +11,14 @@
  * @type boolean
  * @default false
  *
+ * @param Position of (enemy) HP Gauge
+ * @type select
+ * @option As configured in Battle Core
+ * @value default
+ * @option Vertically centered
+ * @value center
+ * @default default
+ *
  * @help
  * All options are off per default.
  *
@@ -34,6 +42,7 @@
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
   const selectedEnemyInFront = params["Selected enemy in the foreground"] !== "false";
+  const hpGaugePosition = params["Position of (enemy) HP Gauge"] || "default";
 
   const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
   Sprite_Enemy.prototype.update = function () {
@@ -80,5 +89,19 @@
       spriteset._battleField.addChild(sprite);
       sprite.pushedToForeground = sprite === this;
     });
+  };
+
+  const Sprite_Battler_updateHpGaugePosition = Sprite_Battler.prototype.updateHpGaugePosition;
+  Sprite_Battler.prototype.updateHpGaugePosition = function () {
+    Sprite_Battler_updateHpGaugePosition.call(this);
+
+    const isEnemy = this instanceof Sprite_Enemy;
+    if (!isEnemy || !this._hpGaugeSprite) {
+      return;
+    }
+
+    if (hpGaugePosition === "center") {
+      this._hpGaugeSprite.y += this.height / 2;
+    }
   };
 })();
