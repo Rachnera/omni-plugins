@@ -11,7 +11,15 @@
  * @type boolean
  * @default false
  *
- * @param Position of (enemy) HP Gauge
+ * @param Position of enemy HP Gauge
+ * @type select
+ * @option As configured in Battle Core
+ * @value default
+ * @option Vertically centered
+ * @value center
+ * @default default
+ *
+ * @param Position of enemy name
  * @type select
  * @option As configured in Battle Core
  * @value default
@@ -42,7 +50,8 @@
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
   const selectedEnemyInFront = params["Selected enemy in the foreground"] !== "false";
-  const hpGaugePosition = params["Position of (enemy) HP Gauge"] || "default";
+  const hpGaugePosition = params["Position of enemy HP Gauge"] || "default";
+  const enemyNamePosition = params["Position of enemy name"] || "default";
 
   const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
   Sprite_Enemy.prototype.update = function () {
@@ -91,9 +100,9 @@
     });
   };
 
-  const Sprite_Battler_updateHpGaugePosition = Sprite_Battler.prototype.updateHpGaugePosition;
+  const alias_Sprite_Battler_updateHpGaugePosition = Sprite_Battler.prototype.updateHpGaugePosition;
   Sprite_Battler.prototype.updateHpGaugePosition = function () {
-    Sprite_Battler_updateHpGaugePosition.call(this);
+    alias_Sprite_Battler_updateHpGaugePosition.call(this);
 
     const isEnemy = this instanceof Sprite_Enemy;
     if (!isEnemy || !this._hpGaugeSprite) {
@@ -102,6 +111,25 @@
 
     if (hpGaugePosition === "center") {
       this._hpGaugeSprite.y += this.height / 2;
+      if (enemyNamePosition === "center") {
+        this._hpGaugeSprite.y -= 4;
+      }
+    }
+  };
+
+  const alias_Sprite_EnemyName_updatePosition = Sprite_EnemyName.prototype.updatePosition;
+  Sprite_EnemyName.prototype.updatePosition = function () {
+    alias_Sprite_EnemyName_updatePosition.call(this);
+
+    if (!this._linkedSprite) {
+      return;
+    }
+
+    if (enemyNamePosition === "center") {
+      this.y -= this._linkedSprite.height / 2;
+      if (hpGaugePosition === "center") {
+        this.y += 4;
+      }
     }
   };
 })();
