@@ -46,6 +46,9 @@
  *
  * To scale down state icons:
  * StateIconRework -> Scale of state icons
+ *
+ * To center state state icons:
+ * StateIconRework -> Position of state icons
  */
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");

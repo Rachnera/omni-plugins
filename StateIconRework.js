@@ -12,6 +12,8 @@
  * @value bottom
  * @option Vertical left
  * @value left
+ * @option Center
+ * @value center
  * @default bottom
  *
  * @param Auto adjust position
@@ -172,6 +174,18 @@
     }
 
     this.x = -((visibleIconsCount - 1) * widthWithPadding) / 2 + index * widthWithPadding;
+
+    if (position === "center") {
+      this.y = -enemySprite.height / 2;
+      if (PluginManager.parameters("BattleUIAdjusters")["Position of enemy HP Gauge"] === "center") {
+        this.y += 8;
+      }
+      if (PluginManager.parameters("BattleUIAdjusters")["Position of enemy name"] === "center") {
+        this.y += 24;
+      }
+      return;
+    }
+
     this.y = 24 + 4; // Name height + a small margin
   };
 
