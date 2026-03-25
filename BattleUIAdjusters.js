@@ -33,7 +33,7 @@
  */
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
-  const selectedEnemyInFront = params["Selected enemy in the foreground"];
+  const selectedEnemyInFront = params["Selected enemy in the foreground"] !== "false";
 
   const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
   Sprite_Enemy.prototype.update = function () {
