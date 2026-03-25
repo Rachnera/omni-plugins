@@ -11,17 +11,15 @@
  * @type boolean
  * @default false
  *
- * @param Scale of state icons
- * @default 1.0
- *
  * @help
  * All options are off per default.
  *
  * Enemies' health bars and names are on a different layer from the other
  * enemy-related sprites, which may require further consideration.
  *
- * This plugin should probably be eventually merged, partially or totally,
- * with relevant features for easier maintainability.
+ * There's an argument that this plugin should allow to override other plugins'
+ * options, so all all adjustments can be done there. This isn't supported yet
+ * so enjoy your "go there, then there, then there, then change that" list.
  *
  * To only display enemy's names on select:
  * VisuMZ_1_BattleCore -> Enemy Battler Settings -> Name > Name Visibility
@@ -29,11 +27,13 @@
  *
  * To reduce the length of the CTB bar:
  * VisuMZ_2_BattleSystemCTB -> Turn Order Display -> Slots > Total Horizontal
+ *
+ * To scale down state icons:
+ * StateIconRework -> Scale of state icons
  */
 (() => {
   const params = PluginManager.parameters("BattleUIAdjusters");
   const selectedEnemyInFront = params["Selected enemy in the foreground"];
-  const stateIconScale = Number(params["Scale of state icons"] || 1.0);
 
   const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
   Sprite_Enemy.prototype.update = function () {
@@ -44,7 +44,6 @@
     }
 
     this.pushForwardIfSelected();
-    this.scaleDownStateIcons();
   };
 
   Sprite_Enemy.prototype.pushForwardIfSelected = function () {
@@ -80,30 +79,6 @@
     spriteset._enemySprites.forEach((sprite) => {
       spriteset._battleField.addChild(sprite);
       sprite.pushedToForeground = sprite === this;
-    });
-  };
-
-  Sprite_Enemy.prototype.scaleDownStateIcons = function () {
-    const scale = stateIconScale;
-
-    if (scale === 1 || scale === 1.0) {
-      return;
-    }
-
-    if (!this._staticStateIconSprites) {
-      return;
-    }
-
-    // FIXME Kind of weird and fragile to have this code there
-    // Should be an option of StateIconRework instead
-
-    const visibleIcons = this._staticStateIconSprites.filter((sprite) => sprite.visible);
-    const padding = Math.floor(4 * scale) || 1;
-    const widthWithPadding = ImageManager.iconWidth * scale + padding * 2;
-
-    visibleIcons.forEach((sprite, i) => {
-      sprite.scale.x = sprite.scale.y = scale;
-      sprite.x = -((visibleIcons.length - 1) * widthWithPadding) / 2 + i * widthWithPadding;
     });
   };
 })();

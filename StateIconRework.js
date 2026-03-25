@@ -6,6 +6,9 @@
  * @plugindesc Display state icons side by side instead of rotating them
  * @author Rachnera
  *
+ * @param Scale of state icons
+ * @default 1.0
+ *
  * @help
  * Only for enemies at the moment
  *
@@ -20,6 +23,9 @@
  */
 
 (() => {
+  const params = PluginManager.parameters("StateIconRework");
+  const stateIconScale = Number(params["Scale of state icons"] || 1.0);
+
   const maxIcons = 7;
 
   const alias_Sprite_Enemy_createStateIconSprite = Sprite_Enemy.prototype.createStateIconSprite;
@@ -53,8 +59,8 @@
     const relevantStates = this._battler.states().filter((state) => state.iconIndex > 0);
     const relevantBuffes = [...Array(8).keys()].filter((i) => this._battler.buff(i) !== 0);
 
-    const padding = 4;
-    const widthWithPadding = ImageManager.iconWidth + padding * 2;
+    const padding = 2;
+    const widthWithPadding = ImageManager.iconWidth * stateIconScale + padding * 2;
 
     for (let i = 0; i < maxIcons; i++) {
       const sprite = this._staticStateIconSprites[i];
@@ -88,6 +94,11 @@
   }
   Sprite_StaticStateIcon.prototype = Object.create(Sprite_StateIcon.prototype);
   Sprite_StaticStateIcon.prototype.constructor = Sprite_StaticStateIcon;
+
+  Sprite_StaticStateIcon.prototype.initialize = function () {
+    Sprite_StateIcon.prototype.initialize.call(this);
+    this.scale.x = this.scale.y = stateIconScale;
+  };
 
   Sprite_StaticStateIcon.prototype.update = function () {
     this.updateTurnDisplaySprite();
