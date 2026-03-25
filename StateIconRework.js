@@ -22,6 +22,11 @@
  * @param Scale of state icons
  * @default 1.0
  *
+ * @param On select only
+ * @type boolean
+ * @desc Only display icons when enemy is selected.
+ * @default false
+ *
  * @help
  * Only for enemies at the moment
  *
@@ -40,6 +45,7 @@
   const stateIconScale = Number(params["Scale of state icons"] || 1.0);
   const iconsPosition = params["Position of state icons"] || "bottom";
   const autoAdjustPosition = params["Auto adjust position"] !== "false";
+  const onSelectOnly = params["On select only"] === "true";
 
   const maxIcons = 7;
 
@@ -112,6 +118,14 @@
   };
 
   Sprite_StaticStateIcon.prototype.update = function () {
+    if (onSelectOnly) {
+      if (!this._battler?.isSelected()) {
+        this.hide();
+        return;
+      }
+      this.show();
+    }
+
     this.updateTurnDisplaySprite();
   };
 
