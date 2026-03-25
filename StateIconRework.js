@@ -14,6 +14,11 @@
  * @value left
  * @default bottom
  *
+ * @param Auto adjust position
+ * @type boolean
+ * @desc If not enough space on the bottom, display icons on the left and vice versa.
+ * @default true
+ *
  * @param Scale of state icons
  * @default 1.0
  *
@@ -34,6 +39,7 @@
   const params = PluginManager.parameters("StateIconRework");
   const stateIconScale = Number(params["Scale of state icons"] || 1.0);
   const iconsPosition = params["Position of state icons"] || "bottom";
+  const autoAdjustPosition = params["Auto adjust position"] !== "false";
 
   const maxIcons = 7;
 
@@ -129,11 +135,23 @@
   };
 
   Sprite_StaticStateIcon.prototype.readjustPosition = function (index, visibleIconsCount, enemySprite) {
+    let position = iconsPosition;
+
     const padding = 2;
     const widthWithPadding = ImageManager.iconWidth * stateIconScale + padding * 2;
     const heightWithPadding = ImageManager.iconHeight * stateIconScale + padding * 2;
 
-    if (iconsPosition === "left") {
+    if (autoAdjustPosition) {
+      if (position === "bottom" && enemySprite.y > Graphics.boxHeight - SceneManager._scene._statusWindow.height) {
+        position = "left";
+      }
+
+      if (position === "left" && enemySprite.x - enemySprite.width / 2 < 0) {
+        position = "bottom";
+      }
+    }
+
+    if (position === "left") {
       this.x = -enemySprite.width / 2 - widthWithPadding / 2;
       this.y = -enemySprite.height / 2 - (visibleIconsCount * heightWithPadding) / 2 + index * heightWithPadding;
       return;
