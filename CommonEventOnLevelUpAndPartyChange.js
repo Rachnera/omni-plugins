@@ -46,4 +46,17 @@
     alias_Game_Party_removeActor.call(this, actorId);
     runCommonEvent();
   };
+
+  const alias_Scene_ItemBase_checkCommonEvent = Scene_ItemBase.prototype.checkCommonEvent;
+  Scene_ItemBase.prototype.checkCommonEvent = function () {
+    // MZ returns to the map after using an item if it detects any pending
+    // common event, even if that event has nothing to do with the item.
+    // Not worth the effort fixing this in the general case so we just exclude
+    // the "level up" common event from the check.
+    if ($gameTemp._commonEventQueue.every((id) => id === commonEventToCall)) {
+      return;
+    }
+
+    alias_Scene_ItemBase_checkCommonEvent.call(this);
+  };
 })();
