@@ -238,6 +238,7 @@ const SEWD = {};
 
   Sprite_StateResistanceIcon.prototype.adjustY = function (battlerSpriteHeight) {
     this.y = -battlerSpriteHeight / 2 - config.icon.size;
+    this.y -= 24;
   };
 
   /* Public API */
