@@ -85,6 +85,7 @@
     for (let i = 0; i < maxIcons; i++) {
       const sprite = this._staticStateIconSprites[i];
       if (i >= icons.length) {
+        sprite._iconIndex = 0;
         sprite.hide();
         continue;
       }
@@ -120,6 +121,10 @@
   };
 
   Sprite_StaticStateIcon.prototype.update = function () {
+    if (!this._battler || !this._iconIndex) {
+      return;
+    }
+
     if (onSelectOnly) {
       if (!this._battler?.isSelected()) {
         this.hide();
@@ -132,10 +137,6 @@
   };
 
   Sprite_StaticStateIcon.prototype.updateTurnDisplaySprite = function () {
-    if (!this._battler || !this._iconIndex) {
-      return;
-    }
-
     this.resetFontSettings();
     this.contents.clear();
 
