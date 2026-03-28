@@ -29,7 +29,9 @@
       $gameParty.reviveBattleMembers();
       SceneManager.pop();
       this._phase = "";
-      return $gameTemp.reserveCommonEvent(commonEventToCallOnDefeat);
+      $gameTemp.reserveCommonEvent(commonEventToCallOnDefeat);
+      $gameMap._interpreter.command115(); // Exit Event Processing
+      return;
     }
 
     alias_Rachnera_CEOD_BattleManager_updateBattleEnd.call(this);
