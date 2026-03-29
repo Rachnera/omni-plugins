@@ -17,6 +17,7 @@
  * - The appropriate amount of cash is awarded at the end of the battle
  * - This shows on the VisuStella MZ - Victory Aftermath screen (if > 0).
  * - This shows on quick battle results (if > 0).
+ * - A different currency icon is drawn when $dataSystem.currencyUnit is "USD".
  */
 
 (() => {
