@@ -23,6 +23,7 @@
   // TODO Make those plugin options
   const variableId = 21;
   const moneyFoundMessage = "$%1 found!";
+  const usdIconId = 313;
 
   const alias_BattleManager_makeRewards = BattleManager.makeRewards;
   BattleManager.makeRewards = function () {
@@ -69,6 +70,28 @@
 
   BattleManager.gainUSD = function () {
     $gameVariables.setValue(variableId, ($gameVariables.value(variableId) || 0) + (this._rewards.usd || 0));
+  };
+
+  const cheatCurrencyIcon = (originalFunc) => {
+    const originalIconId = VisuMZ.CoreEngine.Settings.Gold.GoldIcon;
+
+    if ($dataSystem.currencyUnit.trim() === "USD") {
+      VisuMZ.CoreEngine.Settings.Gold.GoldIcon = usdIconId;
+    }
+
+    originalFunc();
+
+    VisuMZ.CoreEngine.Settings.Gold.GoldIcon = originalIconId;
+  };
+
+  const alias_Window_Base_drawCurrencyValue = Window_Base.prototype.drawCurrencyValue;
+  Window_Base.prototype.drawCurrencyValue = function (value, unit, x, y, width) {
+    cheatCurrencyIcon(() => alias_Window_Base_drawCurrencyValue.call(this, value, unit, x, y, width));
+  };
+
+  const alias_Window_Gold_drawGoldItemStyle = Window_Gold.prototype.drawGoldItemStyle;
+  Window_Gold.prototype.drawGoldItemStyle = function () {
+    cheatCurrencyIcon(() => alias_Window_Gold_drawGoldItemStyle.call(this));
   };
 
   // Could technically have been manually configured in:
