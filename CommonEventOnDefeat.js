@@ -22,18 +22,35 @@
 (() => {
   const params = PluginManager.parameters("CommonEventOnDefeat");
   const commonEventToCallOnDefeat = parseInt(params["Common Event Id"]);
+  let skipNextBattleAutosave = false;
 
   const alias_Rachnera_CEOD_BattleManager_updateBattleEnd = BattleManager.updateBattleEnd;
   BattleManager.updateBattleEnd = function () {
     if ($gameParty.isAllDead() && !this._escaped && !this._canLose && !!commonEventToCallOnDefeat) {
+      skipNextBattleAutosave = true;
+
+      // Standard "can lose" code, cf original BattleManager#updateBattleEnd
       $gameParty.reviveBattleMembers();
       SceneManager.pop();
       this._phase = "";
+
       $gameTemp.reserveCommonEvent(commonEventToCallOnDefeat);
       $gameMap._interpreter.command115(); // Exit Event Processing
+
       return;
     }
 
     alias_Rachnera_CEOD_BattleManager_updateBattleEnd.call(this);
+  };
+
+  const alias_Scene_Base_determineAutosaveBypass = Scene_Base.prototype.determineAutosaveBypass;
+  Scene_Base.prototype.determineAutosaveBypass = function (context) {
+    if (context === "battle" && skipNextBattleAutosave) {
+      skipNextBattleAutosave = false;
+      this._bypassAutosave = true;
+      return;
+    }
+
+    alias_Scene_Base_determineAutosaveBypass.call(this, context);
   };
 })();
