@@ -27,6 +27,17 @@
  * Bug #4: Confusing "HP Damage Multiplier" in skill description
  * Just removing the line for now
  * =====
+ * Bug #5: Enemies sometimes using skills they shouldn't be able to use
+ * Cause: While the exact course through the code still isn't well understood,
+ * investigations suggest that the following happens:
+ *   1. PC takes their first action out of two consecutive ones
+ *   2. Enemy selects their next action
+ *   3. CTB sets PC as next to act
+ *   4. PC takes their second action
+ *   5. Enemy's turn is resumed and they take the action selected in 2
+ * To work around that, we force the enemy to reselect their move anew just
+ * before acting.
+ * =====
  */
 (() => {
   // Bug #1
@@ -67,5 +78,15 @@
   // Bug #4
   Window_ShopStatus.prototype.drawItemDamageAmount = function () {
     return false;
+  };
+
+  // Bug #5
+  const alias_BattleManager_processTurnCTB = BattleManager.processTurnCTB;
+  BattleManager.processTurnCTB = function () {
+    if (this._subject instanceof Game_Enemy) {
+      this._subject.makeActions();
+    }
+
+    alias_BattleManager_processTurnCTB.call(this);
   };
 })();
