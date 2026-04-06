@@ -83,7 +83,7 @@
   // Bug #5
   const alias_BattleManager_processTurnCTB = BattleManager.processTurnCTB;
   BattleManager.processTurnCTB = function () {
-    if (this._subject instanceof Game_Enemy) {
+    if (this._subject instanceof Game_Enemy && !this._subject.currentAction()?._forcing) {
       this._subject.makeActions();
     }
 
