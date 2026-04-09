@@ -9,6 +9,9 @@
  * @command Open Screen
  * @desc Show the quest selection menu
  *
+ * @arg No Quest Common Event
+ * @desc Id of the common event to be run if no quest is available
+ *
  * @help
  * To show the menu:
  * Plugin Command -> QuestSelectionScreen -> Open Screen
@@ -25,7 +28,23 @@
  */
 
 (() => {
-  PluginManager.registerCommand("QuestSelectionScreen", "Open Screen", () => {
+  const questsData = () => {
+    return Omnipocalypse_QuestsData.filter((quest) => !!quest.availableIf && quest.availableIf()).map((data) => {
+      return {
+        ...data,
+        locked: !data.commonEventId || (data.lockedIf && data.lockedIf()),
+      };
+    });
+  };
+
+  PluginManager.registerCommand("QuestSelectionScreen", "Open Screen", (args) => {
+    if (questsData().length === 0) {
+      if (args["No Quest Common Event"]) {
+        $gameTemp.reserveCommonEvent(parseInt(args["No Quest Common Event"]));
+      }
+      return;
+    }
+
     SceneManager.push(Scene_QuestSelection);
   });
 
@@ -55,14 +74,7 @@
   };
 
   Scene_QuestSelection.prototype.createSelectWindow = function () {
-    const data = Omnipocalypse_QuestsData.filter((quest) => !!quest.availableIf && quest.availableIf()).map((data) => {
-      return {
-        ...data,
-        locked: !data.commonEventId || (data.lockedIf && data.lockedIf()),
-      };
-    });
-
-    this._selectWindow = new Window_QuestSelection(data, (item) => {
+    this._selectWindow = new Window_QuestSelection(questsData(), (item) => {
       this._descriptionWindow.setItem(item);
     });
     this._selectWindow.setHandler("ok", () => {
