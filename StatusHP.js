@@ -10,13 +10,16 @@
  * Prototype:
  * - Only work for one specific status effect against one specific enemy
  * - Enemy must be vulnerable to the state
- * - Always require two hits
+ * - The icon gradient must be added to img/system/IconSet.png and configured there
  */
 
 (() => {
   const specialStateId = 13;
   const specialEnemyId = 93;
-  const initialStateHP = 200;
+  const initialStateHP = 300;
+
+  const zeroIconIndex = 320;
+  const relevantIcons = Array.from(Array(16).keys()).map((i) => i + zeroIconIndex);
 
   const alias_Game_Action_itemEffectAddState = Game_Action.prototype.itemEffectAddState;
   Game_Action.prototype.itemEffectAddState = function (target, effect) {
@@ -61,7 +64,8 @@
       this._battler._specialStateHP <= 0 ||
       this._battler._specialStateHP >= initialStateHP ||
       !this._battler.isAlive();
-    const iconToShow = 80;
+
+    const iconToShow = relevantIcons[Math.floor((16 * this._battler._specialStateHP) / initialStateHP)];
     const currentlyDisplayed = this._staticStateIconSprites.some((sprite) => sprite._iconIndex === iconToShow);
 
     // The way the code currently works, there's an automatic clean up when the state is actually applied
@@ -69,7 +73,15 @@
       return;
     }
 
-    const firstAvailableSpriteIndex = this._staticStateIconSprites.findIndex((sprite) => !sprite._iconIndex);
+    // First searching if there's a partial state icon already
+    let firstAvailableSpriteIndex = this._staticStateIconSprites.findIndex((sprite) => {
+      return relevantIcons.includes(sprite._iconIndex);
+    });
+
+    // If not, look for first avaiable sprite
+    if (firstAvailableSpriteIndex === -1) {
+      firstAvailableSpriteIndex = this._staticStateIconSprites.findIndex((sprite) => !sprite._iconIndex);
+    }
 
     if (firstAvailableSpriteIndex === -1) {
       return;
