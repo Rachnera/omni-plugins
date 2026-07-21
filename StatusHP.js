@@ -6,6 +6,19 @@
  * @plugindesc Require a certain number of hits for a state to stick
  * @author Rachnera
  *
+ * @param Enemy id
+ * @desc The one enemy in the game that will be affected by that mechanic
+ *
+ * @param State id
+ * @desc The one state in the game that will be affected by that mechanic
+ *
+ * @param State HP
+ * @desc How many "HP" the state has. Each hit removes 100 of them. Applied at 0.
+ * @default 200
+ *
+ * @param Zero icon index
+ * @desc Index of the first icon (ie 0%) of the gradient line in IconSet
+ *
  * @help
  * Prototype:
  * - Only work for one specific status effect against one specific enemy
@@ -14,16 +27,24 @@
  */
 
 (() => {
-  const specialStateId = 13;
-  const specialEnemyId = 93;
-  const initialStateHP = 300;
+  const params = PluginManager.parameters("StatusHP");
 
-  const zeroIconIndex = 320;
+  const specialStateId = parseInt(params["State id"]);
+  const specialEnemyId = parseInt(params["Enemy id"]);
+  const initialStateHP = parseInt(params["State HP"]) || 200;
+
+  const zeroIconIndex = parseInt(params["Zero icon index"]);
   const relevantIcons = Array.from(Array(16).keys()).map((i) => i + zeroIconIndex);
+
+  const shouldAbort = !specialStateId || !specialEnemyId || !initialStateHP || !zeroIconIndex;
 
   const alias_Game_Action_itemEffectAddState = Game_Action.prototype.itemEffectAddState;
   Game_Action.prototype.itemEffectAddState = function (target, effect) {
     alias_Game_Action_itemEffectAddState.call(this, target, effect);
+
+    if (shouldAbort) {
+      return;
+    }
 
     const isEnemy = target instanceof Game_Enemy;
     if (!isEnemy || target._enemyId !== specialEnemyId) {
@@ -33,6 +54,10 @@
 
   const alias_Game_Battler_addNewState = Game_Battler.prototype.addNewState;
   Game_Battler.prototype.addNewState = function (stateId) {
+    if (shouldAbort) {
+      return alias_Game_Battler_addNewState.call(this, stateId);
+    }
+
     if (stateId === specialStateId && this instanceof Game_Enemy && this._enemyId === specialEnemyId) {
       if (!this._specialStateHP || this._specialStateHP < 0) {
         this._specialStateHP = initialStateHP;
@@ -50,6 +75,10 @@
   const alias_Sprite_Enemy_update = Sprite_Enemy.prototype.update;
   Sprite_Enemy.prototype.update = function () {
     alias_Sprite_Enemy_update.call(this);
+
+    if (shouldAbort) {
+      return;
+    }
 
     if (this._battler?._enemyId !== specialEnemyId) {
       return;
