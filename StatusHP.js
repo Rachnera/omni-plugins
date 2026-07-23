@@ -16,14 +16,18 @@
  * @desc How many "HP" the state has. Each hit removes 100 of them. Applied at 0.
  * @default 200
  *
- * @param Zero icon index
- * @desc Index of the first icon (ie 0%) of the gradient line in IconSet
- *
  * @help
  * Prototype:
  * - Only work for one specific status effect against one specific enemy
  * - Enemy must be vulnerable to the state
- * - The icon gradient must be added to img/system/IconSet.png and configured there
+ *
+ * For each state that can have HP, a gradient displaying its HP bar in sixteen
+ * variants of fullness (from 0 to 15/16) must be added as a newline in
+ * img/system/IconSet.png
+ * AND it must be configured by adding to the state the following notetag:
+ * <Partial Success Zero Icon: x>
+ * Where x is the id of the first icon of the relevant line (thus should always
+ * be a multiple of 16)
  */
 
 (() => {
@@ -33,10 +37,35 @@
   const specialEnemyId = parseInt(params["Enemy id"]);
   const initialStateHP = parseInt(params["State HP"]) || 200;
 
-  const zeroIconIndex = parseInt(params["Zero icon index"]);
-  const relevantIcons = Array.from(Array(16).keys()).map((i) => i + zeroIconIndex);
+  const getZeroIconIndex = (stateId) => {
+    const state = $dataStates[stateId];
 
-  const shouldAbort = !specialStateId || !specialEnemyId || !initialStateHP || !zeroIconIndex;
+    if (!state) {
+      return;
+    }
+
+    const regexp = /<Partial Success Zero Icon:\s*([0-9]+)\s*>/;
+
+    const result = state.note.match(regexp);
+
+    if (!result) {
+      return;
+    }
+
+    return parseInt(result[1]);
+  };
+
+  const getGradient = (stateId) => {
+    const zeroIndex = getZeroIconIndex(stateId);
+
+    if (!zeroIndex) {
+      return [];
+    }
+
+    return Array.from(Array(16).keys()).map((i) => i + zeroIndex);
+  };
+
+  const shouldAbort = !specialStateId || !specialEnemyId || !initialStateHP;
 
   const alias_Game_Action_itemEffectAddState = Game_Action.prototype.itemEffectAddState;
   Game_Action.prototype.itemEffectAddState = function (target, effect) {
@@ -59,12 +88,17 @@
     }
 
     if (stateId === specialStateId && this instanceof Game_Enemy && this._enemyId === specialEnemyId) {
-      if (!this._specialStateHP || this._specialStateHP < 0) {
-        this._specialStateHP = initialStateHP;
+      if (!this._specialStateHP) {
+        this._specialStateHP = {};
       }
 
-      this._specialStateHP -= 100;
-      if (this._specialStateHP > 0) {
+      // Same behavior if not set or zero
+      if (!this._specialStateHP[stateId] || this._specialStateHP[stateId] < 0) {
+        this._specialStateHP[stateId] = initialStateHP;
+      }
+
+      this._specialStateHP[stateId] -= 100;
+      if (this._specialStateHP[stateId] > 0) {
         return;
       }
     }
@@ -88,13 +122,19 @@
       return;
     }
 
+    if (!this._battler._specialStateHP || !(specialStateId in this._battler._specialStateHP)) {
+      return;
+    }
+
     const doNotDisplay =
-      !this._battler._specialStateHP ||
-      this._battler._specialStateHP <= 0 ||
-      this._battler._specialStateHP >= initialStateHP ||
+      !this._battler._specialStateHP[specialStateId] ||
+      this._battler._specialStateHP[specialStateId] <= 0 ||
+      this._battler._specialStateHP[specialStateId] >= initialStateHP ||
       !this._battler.isAlive();
 
-    const iconToShow = relevantIcons[Math.floor((16 * this._battler._specialStateHP) / initialStateHP)];
+    const relevantIcons = getGradient(specialStateId);
+
+    const iconToShow = relevantIcons[Math.floor((16 * this._battler._specialStateHP[specialStateId]) / initialStateHP)];
     const currentlyDisplayed = this._staticStateIconSprites.some((sprite) => sprite._iconIndex === iconToShow);
 
     // The way the code currently works, there's an automatic clean up when the state is actually applied
