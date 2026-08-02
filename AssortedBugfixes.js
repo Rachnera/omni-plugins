@@ -114,4 +114,12 @@
 
     return true;
   };
+  const alias_Game_Party_CGMZ_addMultiInventoryItems = Game_Party.prototype.CGMZ_addMultiInventoryItems;
+  Game_Party.prototype.CGMZ_addMultiInventoryItems = function (id) {
+    if (!$cgmz.doesMultiInventoryExist(id)) return;
+    alias_Game_Party_CGMZ_addMultiInventoryItems.call(this, id);
+
+    const inventory = $cgmz.getMultiInventory(id);
+    this.gainGold(inventory.gold || 0);
+  };
 })();
