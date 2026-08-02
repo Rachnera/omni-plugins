@@ -38,6 +38,9 @@
  * To work around that, we force the enemy to reselect their move anew just
  * before acting.
  * =====
+ * Bug #6: Support different parties having different purses
+ * Extension of CGMZ_MultipleInventories so money is also split
+ * =====
  */
 (() => {
   // Bug #1
@@ -88,5 +91,27 @@
     }
 
     alias_BattleManager_processTurnCTB.call(this);
+  };
+
+  // Bug #6
+  Game_Party.prototype.CGMZ_switchMultiInventory = function (newId, oldId) {
+    if (!this.CGMZ_canSwitchMultiInventory(newId, oldId)) return false;
+
+    const items = JSON.parse(JSON.stringify(this._items));
+    const weapons = JSON.parse(JSON.stringify(this._weapons));
+    const armors = JSON.parse(JSON.stringify(this._armors));
+
+    const gold = this._gold;
+
+    const newInventory = $cgmz.getMultiInventory(newId);
+    this._items = newInventory.items;
+    this._weapons = newInventory.weapons;
+    this._armors = newInventory.armors;
+
+    this._gold = newInventory.gold || 0;
+
+    $cgmz.saveMultiInventoryItems({ items: items, weapons: weapons, armors: armors, gold: gold }, oldId);
+
+    return true;
   };
 })();
